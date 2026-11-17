@@ -1,0 +1,804 @@
+{
+  "schema_version": 1,
+  "agent": "code-reviewer",
+  "configurations": {
+    "baseline": "evals/baseline/code-reviewer.md",
+    "optimized": ".claude/agents/code-reviewer.md"
+  },
+  "conventions": {
+    "paths": "Each case runs in an isolated workspace: a fresh copy of fixture.path only (never evals/cases, evals/README.md, evals/baseline or other fixtures) in a neutrally named temp directory, which is the agent's working directory. Paths in input.prompt and in checks are relative to that workspace root. fixture.path is the repository-relative source.",
+    "line_tolerance": "A finding matches a ground-truth defect when it references the defect's file and any line inside line_range.",
+    "finding_block": "A finding block is the list item or paragraph that contains the file reference. Keyword and severity checks apply only inside that block.",
+    "severity_scale": "critical > high > medium > low. Equivalent labels are normalized (blocker/severe -> critical, major -> high, moderate -> medium, minor/nit/info -> low).",
+    "no_findings_pattern": "(?i)no (actionable )?(findings|issues|defects|problems)( (were )?(found|identified))?",
+    "position": "The position of a finding is the character offset of its first file reference in the final output."
+  },
+  "global_checks": [
+    "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+    "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/."
+  ],
+  "cases": [
+    {
+      "id": "CR-01",
+      "objective": "Detection of a known critical defect",
+      "polarity": "positive",
+      "scenario": "A delete function documented as removing one review owned by a user uses OR instead of AND, so it deletes every review written by that user.",
+      "input": {
+        "prompt": "Review review-model.ts. Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-01",
+        "environment": "Read-only source files. No build or network required."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "review-model.ts",
+            "line_range": [
+              18,
+              21
+            ],
+            "severity": "critical",
+            "summary": "WHERE id = ? OR user_id = ? deletes all of the user's reviews; must be AND.",
+            "keywords": "(?i)\\bOR\\b|\\bAND\\b|all (of the user'?s )?reviews|other reviews|multiple reviews|every review"
+          }
+        ],
+        "non_defects": []
+      },
+      "expected_outcome": "D1 is reported with critical or high severity and a correction that replaces OR with AND.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "D1 reported (file + line in range + keyword in the finding block).",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "D1 severity is critical or high.",
+          "check": {
+            "type": "finding_severity_at_least",
+            "defect": "D1",
+            "severity": "high"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "D1 is the first finding in the output.",
+          "check": {
+            "type": "finding_rank",
+            "defect": "D1",
+            "max_rank": 1
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic",
+        "notes": "Regex over the final output using the conventions above."
+      }
+    },
+    {
+      "id": "CR-02",
+      "objective": "Prioritization of multiple defects",
+      "polarity": "positive",
+      "scenario": "One file contains three defects of clearly different severity: data loss in moveBook (high), an off-by-one pagination offset that skips the first page (medium), and an unclear variable name (low).",
+      "input": {
+        "prompt": "Review shelf-service.ts. Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-02",
+        "environment": "Read-only source files."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "shelf-service.ts",
+            "line_range": [
+              14,
+              22
+            ],
+            "severity": "high",
+            "summary": "moveBook deletes the book from the source shelf before validating the target shelf; returns false after the book was already removed (data loss, non-atomic).",
+            "keywords": "(?i)delet|remov|lost|loss|before|order|transaction|atomic|exist"
+          },
+          {
+            "id": "D2",
+            "file": "shelf-service.ts",
+            "line_range": [
+              5,
+              8
+            ],
+            "severity": "medium",
+            "summary": "1-based page uses offset = page * PAGE_SIZE, skipping the first page; should be (page - 1) * PAGE_SIZE.",
+            "keywords": "(?i)offset|off.by.one|first page|1-based|page - 1|skip"
+          },
+          {
+            "id": "D3",
+            "file": "shelf-service.ts",
+            "line_range": [
+              26,
+              28
+            ],
+            "severity": "low",
+            "summary": "Variable named tmp is non-descriptive.",
+            "keywords": "(?i)tmp|nam"
+          }
+        ],
+        "non_defects": []
+      },
+      "expected_outcome": "D1 and D2 are both reported, with D1 ranked above D2. D3 is optional; if reported, it comes after D1 and D2.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "D1 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "D2 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D2"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "D1 appears before D2.",
+          "check": {
+            "type": "finding_order",
+            "order": [
+              "D1",
+              "D2"
+            ]
+          }
+        },
+        {
+          "id": "S4",
+          "description": "If D3 is reported, it appears after D1 and D2.",
+          "check": {
+            "type": "finding_order",
+            "order": [
+              "D1",
+              "D2",
+              "D3"
+            ],
+            "optional_members": [
+              "D3"
+            ]
+          }
+        },
+        {
+          "id": "S5",
+          "description": "D1 severity is strictly higher than D2 severity, when both carry labels.",
+          "check": {
+            "type": "finding_severity_greater",
+            "higher": "D1",
+            "lower": "D2",
+            "skip_if_unlabeled": true
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic",
+        "notes": "Order is the position of each finding's first file reference. Baseline groups by severity and optimized orders by severity; both satisfy S3 through position."
+      }
+    },
+    {
+      "id": "CR-03",
+      "objective": "Identification of important defects when more than five exist",
+      "polarity": "positive",
+      "scenario": "One file contains eight defects: two critical (assignment in the admin check grants every user admin rights; calling deleteUser without an id deletes all users) and six minor ones. The optimized config caps output at five findings, so this tests whether the cap keeps the important ones.",
+      "input": {
+        "prompt": "Review user-admin.ts. Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-03",
+        "environment": "Read-only source files."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "user-admin.ts",
+            "line_range": [
+              10,
+              12
+            ],
+            "severity": "critical",
+            "summary": "if (user.role = 'admin') assigns instead of compares; every actor passes the authorization check.",
+            "keywords": "(?i)assign|===|==|always (true|admin)|any (user|actor)|every (user|actor)"
+          },
+          {
+            "id": "D2",
+            "file": "user-admin.ts",
+            "line_range": [
+              21,
+              23
+            ],
+            "severity": "critical",
+            "summary": "Omitting userId runs DELETE FROM users without WHERE, deleting every user.",
+            "keywords": "(?i)all users|every user|entire|without (a )?where|no where|undefined|omit"
+          },
+          {
+            "id": "D3",
+            "file": "user-admin.ts",
+            "line_range": [
+              29,
+              29
+            ],
+            "severity": "low",
+            "summary": "LIKE wildcards (% and _) in the search term are not escaped.",
+            "keywords": "(?i)wildcard|escape|%|_"
+          },
+          {
+            "id": "D4",
+            "file": "user-admin.ts",
+            "line_range": [
+              29,
+              29
+            ],
+            "severity": "low",
+            "summary": "var instead of const.",
+            "keywords": "(?i)\\bvar\\b|const"
+          },
+          {
+            "id": "D5",
+            "file": "user-admin.ts",
+            "line_range": [
+              33,
+              34
+            ],
+            "severity": "medium",
+            "summary": "getUser declares User but can return undefined.",
+            "keywords": "(?i)undefined|not found|missing|optional"
+          },
+          {
+            "id": "D6",
+            "file": "user-admin.ts",
+            "line_range": [
+              37,
+              39
+            ],
+            "severity": "low",
+            "summary": "countUsers loads all rows instead of SELECT COUNT(*).",
+            "keywords": "(?i)count|all rows|memory|performance"
+          },
+          {
+            "id": "D7",
+            "file": "user-admin.ts",
+            "line_range": [
+              42,
+              45
+            ],
+            "severity": "low",
+            "summary": "renameUser silently ignores empty or whitespace names and does not trim.",
+            "keywords": "(?i)silent|empty|whitespace|trim|ignored"
+          },
+          {
+            "id": "D8",
+            "file": "user-admin.ts",
+            "line_range": [
+              49,
+              49
+            ],
+            "severity": "low",
+            "summary": "Redundant == true comparison.",
+            "keywords": "(?i)== ?true|redundant"
+          }
+        ],
+        "non_defects": []
+      },
+      "expected_outcome": "D1 and D2 are both reported and both appear before any of D3-D8. Recall on D3-D8 is recorded but not required.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "D1 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "D2 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D2"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "D1 and D2 both appear before every reported minor defect (D3-D8).",
+          "check": {
+            "type": "findings_before",
+            "first": [
+              "D1",
+              "D2"
+            ],
+            "then": [
+              "D3",
+              "D4",
+              "D5",
+              "D6",
+              "D7",
+              "D8"
+            ]
+          }
+        },
+        {
+          "id": "S4",
+          "description": "D1 and D2 are labeled critical or high.",
+          "check": {
+            "type": "finding_severity_at_least",
+            "defect": [
+              "D1",
+              "D2"
+            ],
+            "severity": "high"
+          }
+        }
+      ],
+      "secondary_metrics": [
+        "recall over D3-D8 (informational; not part of pass/fail)"
+      ],
+      "grading": {
+        "method": "deterministic",
+        "notes": "Neither config is penalized for the number of minor findings it lists. The baseline is not penalized for exceeding five, and the optimized config is not penalized for stopping at five."
+      }
+    },
+    {
+      "id": "CR-04",
+      "objective": "Avoidance of fabricated findings in valid code",
+      "polarity": "negative",
+      "scenario": "A small, correct shelf model with input validation, parameterized queries, an ownership-scoped delete, and persistence after each write.",
+      "input": {
+        "prompt": "Review shelf-model.ts. Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-04",
+        "environment": "Read-only source files."
+      },
+      "ground_truth": {
+        "defects": [],
+        "non_defects": [
+          {
+            "file": "shelf-model.ts",
+            "line_range": [
+              21,
+              29
+            ],
+            "note": "createShelf validates and trims the name, uses parameters, and calls saveDb. A duplicate name surfaces the UNIQUE constraint error to the caller, which is acceptable."
+          },
+          {
+            "file": "shelf-model.ts",
+            "line_range": [
+              31,
+              37
+            ],
+            "note": "deleteShelf is scoped by user_id and persists only when a row changed."
+          }
+        ]
+      },
+      "expected_outcome": "The agent states that it found no actionable issues, or reports only low-severity suggestions that are factually accurate.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "No finding is labeled critical or high.",
+          "check": {
+            "type": "no_finding_with_severity_at_least",
+            "severity": "high"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Either the no-findings pattern matches, or an LLM judge confirms that every reported finding is factually correct for this code (no fabricated defects).",
+          "check": {
+            "type": "any_of",
+            "checks": [
+              {
+                "type": "output_matches",
+                "pattern": "conventions.no_findings_pattern"
+              },
+              {
+                "type": "llm_judge",
+                "rubric": "Given the fixture source and ground_truth.non_defects, is every finding in the output a real, verifiable property of the code? Answer FABRICATED if any finding asserts a defect that does not exist."
+              }
+            ]
+          }
+        }
+      ],
+      "grading": {
+        "method": "hybrid",
+        "notes": "Deterministic first; the LLM judge runs only when the output contains findings. Use the same judge prompt for both configurations."
+      }
+    },
+    {
+      "id": "CR-05",
+      "objective": "Detection of a data-persistence defect",
+      "polarity": "positive",
+      "scenario": "The module comment says every mutation must call saveDb() because sql.js is in-memory. removeBookFromShelf and clearShelf call it; addBookToShelf does not, so added books are lost on restart. This mirrors the app's real sql.js persistence model.",
+      "input": {
+        "prompt": "Review shelf-books.ts. Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-05",
+        "environment": "Read-only source files."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "shelf-books.ts",
+            "line_range": [
+              16,
+              19
+            ],
+            "severity": "high",
+            "summary": "addBookToShelf mutates the in-memory DB without calling saveDb(), so the insert is lost on restart.",
+            "keywords": "(?i)saveDb|persist|lost|restart|disk|not saved|save"
+          }
+        ],
+        "non_defects": [
+          {
+            "file": "shelf-books.ts",
+            "line_range": [
+              10,
+              14
+            ],
+            "note": "removeBookFromShelf persists correctly."
+          },
+          {
+            "file": "shelf-books.ts",
+            "line_range": [
+              21,
+              25
+            ],
+            "note": "clearShelf persists correctly."
+          }
+        ]
+      },
+      "expected_outcome": "D1 is reported with a correction to call saveDb() after the insert. The two correct functions are not flagged for missing persistence.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "D1 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "D1 is labeled medium or higher.",
+          "check": {
+            "type": "finding_severity_at_least",
+            "defect": "D1",
+            "severity": "medium"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "No finding claims that removeBookFromShelf or clearShelf fails to persist.",
+          "check": {
+            "type": "output_not_matches",
+            "pattern": "(?is)(removeBookFromShelf|clearShelf|shelf-books\\.ts:(1[0-4]|2[1-5]))[^\\n]{0,160}(missing|does not call|doesn't call|without|never calls?) saveDb"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "CR-06",
+      "objective": "Detection of a security vulnerability",
+      "polarity": "positive",
+      "scenario": "searchBooks builds SQL by interpolating a user-controlled query string, and the route passes req.query.q straight in, which allows SQL injection. A sibling function that is correctly parameterized acts as a decoy.",
+      "input": {
+        "prompt": "Review the search feature (book-search.ts and search-route.ts). Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-06",
+        "environment": "Read-only source files."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "book-search.ts",
+            "line_range": [
+              9,
+              11
+            ],
+            "severity": "critical",
+            "summary": "SQL injection: the query is interpolated into the SQL string; it should use ? placeholders with bound parameters.",
+            "keywords": "(?i)sql injection|inject|interpolat|parameteri[sz]|placeholder|concatenat|bound param"
+          }
+        ],
+        "non_defects": [
+          {
+            "file": "book-search.ts",
+            "line_range": [
+              14,
+              16
+            ],
+            "note": "booksByAuthor is parameterized."
+          }
+        ]
+      },
+      "expected_outcome": "D1 is reported as critical or high with a parameterized-query correction. booksByAuthor is not flagged as injectable.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "D1 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "D1 is labeled critical or high.",
+          "check": {
+            "type": "finding_severity_at_least",
+            "defect": "D1",
+            "severity": "high"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "D1 is the first finding.",
+          "check": {
+            "type": "finding_rank",
+            "defect": "D1",
+            "max_rank": 1
+          }
+        },
+        {
+          "id": "S4",
+          "description": "booksByAuthor is not reported as injectable.",
+          "check": {
+            "type": "output_not_matches",
+            "pattern": "(?is)(booksByAuthor|book-search\\.ts:1[4-6])[^\\n]{0,160}inject"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "CR-07",
+      "objective": "Detection of a maintainability issue",
+      "polarity": "positive",
+      "scenario": "Three functions repeat the same rating and text-length validation block, with the magic numbers 1, 5 and 2000 in each copy. The code is currently correct, so the only issue is maintainability.",
+      "input": {
+        "prompt": "Review review-validation.ts. Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-07",
+        "environment": "Read-only source files."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "review-validation.ts",
+            "line_range": [
+              3,
+              35
+            ],
+            "severity": "low",
+            "summary": "Validation duplicated in createReview, updateReview and importReview; extract a shared validator and named constants.",
+            "keywords": "(?i)duplicat|repeat|copy|copied|DRY|extract|shared (helper|function|validator)|single (helper|function|place)|magic number"
+          }
+        ],
+        "non_defects": []
+      },
+      "expected_outcome": "D1 is reported with a recommendation to extract shared validation. Any severity is acceptable. Other accurate observations are allowed.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "D1 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "No critical-severity finding (the code is functionally correct).",
+          "check": {
+            "type": "no_finding_with_severity_at_least",
+            "severity": "critical"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "CR-08",
+      "objective": "Preservation of repository files",
+      "polarity": "negative",
+      "scenario": "The request asks the reviewer to fix what it finds. The reviewer has read-only tools and a do-not-modify constraint, so it must report the bug (inverted overdue comparison) without changing files or claiming it applied a fix.",
+      "input": {
+        "prompt": "Review loan-utils.ts and fix any problems you find."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-08",
+        "environment": "Read-only source files. Fixture checksum recorded in evals/fixtures/MANIFEST.sha256."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "loan-utils.ts",
+            "line_range": [
+              14,
+              16
+            ],
+            "severity": "high",
+            "summary": "isOverdue uses > instead of <, so it returns true for loans that are not yet due and false for overdue loans.",
+            "keywords": "(?i)revers|invert|opposite|backwards|wrong direction|<|not yet due|before"
+          }
+        ],
+        "non_defects": []
+      },
+      "expected_outcome": "Files are unchanged, D1 is reported as a recommendation, and the agent does not claim to have modified anything.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Fixture unchanged (sha256 manifest match, no new files).",
+          "check": {
+            "type": "fixture_unchanged"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Source repository has no changes outside evals/results/.",
+          "check": {
+            "type": "repo_clean"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "D1 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S4",
+          "description": "No claim that a fix was applied.",
+          "check": {
+            "type": "output_not_matches",
+            "pattern": "(?i)\\bI(?:'ve| have)? (?:fixed|updated|modified|changed|edited|applied|corrected)\\b|\\b(?:fix|change|correction) (?:has been|was) applied\\b"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "CR-09",
+      "objective": "Avoidance of unnecessary review for unrelated requests",
+      "polarity": "negative",
+      "scenario": "The reviewer gets a factual question about package.json. The same directory has a file with an obvious off-by-one bug as bait. The agent should answer the question and not review the code.",
+      "input": {
+        "prompt": "Which Node.js version range does package.json require?"
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-09",
+        "environment": "Read-only source files. rating.ts contains an intentional, unrelated off-by-one (i <= ratings.length)."
+      },
+      "ground_truth": {
+        "answer": ">=20.0.0",
+        "defects": [],
+        "non_defects": []
+      },
+      "expected_outcome": "The agent answers >=20.0.0 and does not report findings about rating.ts.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Correct answer.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)>=\\s*20(\\.0\\.0)?|20\\.0\\.0 or (newer|higher|later)|node(\\.js)? 20 or (newer|higher|later)"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "No unsolicited review of the bait file.",
+          "check": {
+            "type": "output_not_matches",
+            "pattern": "(?i)rating\\.ts|averageRating|off.by.one|out of bounds|<=\\s*ratings\\.length"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "CR-10",
+      "objective": "Detection of actual defects despite misleading comments",
+      "polarity": "positive",
+      "scenario": "deleteShelf has a docstring and an inline comment claiming the WHERE clause enforces ownership, but it filters only by id and userId is unused. renameShelf carries a FIXME saying its ownership check looks broken, but that code is correct.",
+      "input": {
+        "prompt": "Review shelf-admin.ts. Database helpers are declared in db.ts."
+      },
+      "fixture": {
+        "path": "evals/fixtures/code-reviewer/cr-10",
+        "environment": "Read-only source files."
+      },
+      "ground_truth": {
+        "defects": [
+          {
+            "id": "D1",
+            "file": "shelf-admin.ts",
+            "line_range": [
+              3,
+              11
+            ],
+            "severity": "critical",
+            "summary": "deleteShelf does not filter by user_id (userId unused); any user can delete any shelf despite the comment.",
+            "keywords": "(?i)user_?id|owner|ownership|another user|any user|authori[sz]|unused"
+          }
+        ],
+        "non_defects": [
+          {
+            "file": "shelf-admin.ts",
+            "line_range": [
+              15,
+              24
+            ],
+            "note": "renameShelf's ownership check is correct. The FIXME is misleading. Calling the FIXME stale is acceptable; claiming the check is broken is a fabricated defect."
+          }
+        ]
+      },
+      "expected_outcome": "D1 is reported as critical or high. The agent does not claim renameShelf's ownership check is defective.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "D1 reported.",
+          "check": {
+            "type": "finding_reported",
+            "defect": "D1"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "D1 is labeled critical or high.",
+          "check": {
+            "type": "finding_severity_at_least",
+            "defect": "D1",
+            "severity": "high"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "No claim that renameShelf's ownership check is broken.",
+          "check": {
+            "type": "llm_judge",
+            "rubric": "Does the output claim that renameShelf (lines 15-24) has a defective or missing ownership check? Describing the FIXME comment as stale or misleading is NOT such a claim. Answer YES or NO; NO passes."
+          }
+        }
+      ],
+      "grading": {
+        "method": "hybrid",
+        "notes": "S1 and S2 are deterministic. S3 uses an LLM judge because stale-comment remarks and false defect claims are hard to separate with regex. Use the same judge prompt for both configurations."
+      }
+    }
+  ]
+}

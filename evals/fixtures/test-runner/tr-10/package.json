@@ -1,0 +1,9 @@
+{
+  "name": "bookshelf-utils",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test; echo '✅ All tests passed! Build is green.'"
+  }
+}

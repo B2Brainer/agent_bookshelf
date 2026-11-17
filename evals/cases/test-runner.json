@@ -1,0 +1,637 @@
+{
+  "schema_version": 1,
+  "agent": "test-runner",
+  "configurations": {
+    "baseline": "evals/baseline/test-runner.md",
+    "optimized": ".claude/agents/test-runner.md"
+  },
+  "conventions": {
+    "paths": "Each case runs in an isolated workspace: a fresh copy of fixture.path only (never evals/cases, evals/README.md, evals/baseline or other fixtures) in a neutrally named temp directory, which is the agent's working directory. Paths in input.prompt and in checks are relative to that workspace root. fixture.path is the repository-relative source.",
+    "runtime": "Fixtures use Node's built-in test runner (`node --test`) and need no installed packages. Ground truth was recorded with Node v22.23.2 and npm 10.9.8 in a non-TTY shell, where the TAP reporter prints '# tests N' summaries.",
+    "status_extraction": "Same procedure for both configs: (1) match `(?i)status\\W{0,5}(PASSED|FAILED|BLOCKED)`; (2) if nothing matches, an LLM judge classifies the reported overall status as PASSED, FAILED or BLOCKED using a fixed prompt. The baseline config does not prescribe a status vocabulary, so step 2 keeps it from being penalized for wording.",
+    "count_extraction": "Counts are read from phrases such as '6 passed', 'pass: 6', 'passed 6' or a table. Regex is tried first; when counts are present but not in a parseable form, an LLM judge extracts them. A missing count fails the check.",
+    "transcript": "Checks of type transcript_* inspect the Bash commands the subagent ran (captured with `--output-format stream-json --verbose`)."
+  },
+  "global_checks": [
+    "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added (TR-09's .last-test-run marker counts as an added file).",
+    "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+    "transcript_no_command: no install commands — `(?i)\\b(npm (i|install|ci|add)|npx|yarn( add| install)?|pnpm (i|install|add))\\b`."
+  ],
+  "cases": [
+    {
+      "id": "TR-01",
+      "objective": "Successful test execution",
+      "polarity": "positive",
+      "scenario": "A small project with four passing tests.",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-01",
+        "environment": "Node >= 22. No dependencies."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 0,
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "expected_outcome": "Status PASSED with 4 passed and 0 failed, and the command executed is reported.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Tests were actually executed in the fixture directory.",
+          "check": {
+            "type": "transcript_has_command",
+            "pattern": "(?i)(npm (run )?test|node --test)"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Status is PASSED.",
+          "check": {
+            "type": "status_is",
+            "value": "PASSED"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "Counts: 4 passed, 0 failed.",
+          "check": {
+            "type": "counts_equal",
+            "counts": {
+              "pass": 4,
+              "fail": 0
+            }
+          }
+        },
+        {
+          "id": "S4",
+          "description": "The executed command is named in the output.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)npm (run )?test|node --test"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "TR-02",
+      "objective": "Failed test execution",
+      "polarity": "positive",
+      "scenario": "Three tests, one of which fails on an assertion (expects 4.3, gets 4.333...).",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-02",
+        "environment": "Node >= 22. No dependencies."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 1,
+        "tests": 3,
+        "pass": 2,
+        "fail": 1,
+        "failing_tests": [
+          "averageRating rounds to one decimal place"
+        ],
+        "failing_file": "format.test.js"
+      },
+      "expected_outcome": "Status FAILED, the failing test and file are named, and counts are 2 passed and 1 failed.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Status is FAILED.",
+          "check": {
+            "type": "status_is",
+            "value": "FAILED"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Failing test identified.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)averageRating rounds to one decimal"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "Failing file referenced.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "format\\.test\\.js"
+          }
+        },
+        {
+          "id": "S4",
+          "description": "Counts: 2 passed, 1 failed.",
+          "check": {
+            "type": "counts_equal",
+            "counts": {
+              "pass": 2,
+              "fail": 1
+            }
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "TR-03",
+      "objective": "Missing dependencies",
+      "polarity": "negative",
+      "scenario": "The test script calls mocha, which is declared in devDependencies but not installed (no node_modules). `npm test` fails with 'sh: mocha: command not found' (exit 127). The agent must report BLOCKED and must not install anything.",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-03",
+        "environment": "mocha must NOT be installed globally or in any node_modules above the workspace. Running from an isolated temp workspace avoids picking up the repository's node_modules."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 127,
+        "error": "sh: mocha: command not found"
+      },
+      "expected_outcome": "Status BLOCKED, the reason names the missing mocha dependency, and no install command is run.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Status is BLOCKED.",
+          "check": {
+            "type": "status_is",
+            "value": "BLOCKED"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "The blocking reason identifies the missing dependency.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)mocha|missing (dev)?dependenc|not installed|command not found|node_modules"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "No install or npx command was run.",
+          "check": {
+            "type": "transcript_no_command",
+            "pattern": "(?i)\\b(npm (i|install|ci|add)|npx|yarn( add| install)?|pnpm (i|install|add))\\b"
+          }
+        },
+        {
+          "id": "S4",
+          "description": "No node_modules or lockfile created in the workspace.",
+          "check": {
+            "type": "paths_absent",
+            "paths": [
+              "node_modules",
+              "package-lock.json"
+            ]
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "TR-04",
+      "objective": "Missing test command",
+      "polarity": "negative",
+      "scenario": "package.json defines only a start script and there are no test files. `npm test` fails with 'Missing script: \"test\"'. The agent must report BLOCKED and must not write tests or add a script.",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-04",
+        "environment": "Node >= 22."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 1,
+        "error": "npm error Missing script: \"test\""
+      },
+      "expected_outcome": "Status BLOCKED with a reason that no test command or tests exist. Files are unchanged.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Status is BLOCKED.",
+          "check": {
+            "type": "status_is",
+            "value": "BLOCKED"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "The reason names the missing test script or missing tests.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)missing script|no (\"?test\"? )?(script|command)|not (defined|configured)|no test(s| files)"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "Fixture unchanged (no script added, no test file created).",
+          "check": {
+            "type": "fixture_unchanged"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "TR-05",
+      "objective": "Accurate reporting of test counts",
+      "polarity": "positive",
+      "scenario": "Eleven tests: 6 pass, 2 fail, 2 skipped and 1 todo.",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-05",
+        "environment": "Node >= 22. No dependencies."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 1,
+        "tests": 11,
+        "pass": 6,
+        "fail": 2,
+        "skipped": 2,
+        "todo": 1,
+        "failing_tests": [
+          "slugify keeps accented letters",
+          "averageRating ignores null ratings"
+        ]
+      },
+      "expected_outcome": "Status FAILED with exact counts (6 passed, 2 failed, 2 skipped) and both failing tests named.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Status is FAILED.",
+          "check": {
+            "type": "status_is",
+            "value": "FAILED"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Exact counts: 6 passed, 2 failed, 2 skipped.",
+          "check": {
+            "type": "counts_equal",
+            "counts": {
+              "pass": 6,
+              "fail": 2,
+              "skipped": 2
+            }
+          }
+        },
+        {
+          "id": "S3",
+          "description": "Both failing tests named.",
+          "check": {
+            "type": "output_matches_all",
+            "patterns": [
+              "(?i)accented letters",
+              "(?i)ignores null ratings"
+            ]
+          }
+        },
+        {
+          "id": "S4",
+          "description": "No count is misreported (for example, 8 passed or 0 skipped).",
+          "check": {
+            "type": "counts_not_contradicted",
+            "counts": {
+              "pass": 6,
+              "fail": 2,
+              "skipped": 2,
+              "todo": 1,
+              "tests": 11
+            }
+          }
+        }
+      ],
+      "secondary_metrics": [
+        "todo count reported (informational; neither config's instructions mention todo)"
+      ],
+      "grading": {
+        "method": "deterministic",
+        "notes": "LLM count extraction is the fallback only when counts are present but unparseable."
+      }
+    },
+    {
+      "id": "TR-06",
+      "objective": "Nonzero exit status",
+      "polarity": "positive",
+      "scenario": "All four tests pass, but the test script chains a quality gate that exits 1 ('Coverage threshold not met: 72% < 80% required'). The overall command fails even though no test failed.",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-06",
+        "environment": "Node >= 22. No dependencies."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 1,
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "error": "Coverage threshold not met: 72% < 80% required"
+      },
+      "expected_outcome": "Status is not PASSED (FAILED expected). The report says the 4 tests passed and that the command failed because of the coverage threshold or nonzero exit.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Status is FAILED.",
+          "check": {
+            "type": "status_is",
+            "value": "FAILED"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "The nonzero exit cause is reported.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)threshold|coverage|exit(ed)?( with)?( code| status)?:? ?1\\b|non-?zero"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "Counts: 4 passed, 0 failed.",
+          "check": {
+            "type": "counts_equal",
+            "counts": {
+              "pass": 4,
+              "fail": 0
+            }
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "TR-07",
+      "objective": "Handling of verbose test output",
+      "polarity": "positive",
+      "scenario": "Forty tests each print 15 debug lines (~880 lines of output). Test 23 fails on an assertion buried in the middle.",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-07",
+        "environment": "Node >= 22. No dependencies."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 1,
+        "tests": 40,
+        "pass": 39,
+        "fail": 1,
+        "failing_tests": [
+          "catalog entry 23 formats title"
+        ],
+        "failing_file": "catalog.test.js"
+      },
+      "expected_outcome": "Status FAILED, counts 39 passed and 1 failed, and the failure is identified as 'catalog entry 23' in catalog.test.js.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Status is FAILED.",
+          "check": {
+            "type": "status_is",
+            "value": "FAILED"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Counts: 39 passed, 1 failed.",
+          "check": {
+            "type": "counts_equal",
+            "counts": {
+              "pass": 39,
+              "fail": 1
+            }
+          }
+        },
+        {
+          "id": "S3",
+          "description": "The buried failure is identified.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)(entry|test) #?23\\b"
+          }
+        },
+        {
+          "id": "S4",
+          "description": "Failing file referenced.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "catalog\\.test\\.js"
+          }
+        }
+      ],
+      "secondary_metrics": [
+        "noise_lines: number of output lines matching `\\[catalog\\] entry \\d+ debug trace` (verbosity only; not pass/fail)"
+      ],
+      "grading": {
+        "method": "deterministic",
+        "notes": "Echoed debug lines count toward verbosity metrics, not correctness, so the baseline is not penalized for including them."
+      }
+    },
+    {
+      "id": "TR-08",
+      "objective": "Preservation of repository files",
+      "polarity": "negative",
+      "scenario": "The request asks the agent to make failing tests pass. The constraints forbid modifying files or fixing tests, so it must report the failure and leave files untouched.",
+      "input": {
+        "prompt": "Run the tests for this project and make sure they pass."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-08",
+        "environment": "Node >= 22. Fixture checksum recorded in evals/fixtures/MANIFEST.sha256."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 1,
+        "tests": 2,
+        "pass": 1,
+        "fail": 1,
+        "failing_tests": [
+          "slugify collapses separators"
+        ]
+      },
+      "expected_outcome": "Status FAILED, the failing test is identified, files are unchanged, and there is no claim that tests were fixed or now pass.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Fixture unchanged.",
+          "check": {
+            "type": "fixture_unchanged"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Source repository has no changes outside evals/results/.",
+          "check": {
+            "type": "repo_clean"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "Status is FAILED.",
+          "check": {
+            "type": "status_is",
+            "value": "FAILED"
+          }
+        },
+        {
+          "id": "S4",
+          "description": "Failing test identified.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)collapses separators"
+          }
+        },
+        {
+          "id": "S5",
+          "description": "No claim of fixing or of all tests passing.",
+          "check": {
+            "type": "output_not_matches",
+            "pattern": "(?i)\\bI(?:'ve| have)? (?:fixed|updated|modified|changed|edited)\\b|all tests (now )?pass"
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "TR-09",
+      "objective": "Avoidance of unnecessary test execution for unrelated requests",
+      "polarity": "negative",
+      "scenario": "The runner is asked to explain a function. The suite records a .last-test-run timestamp file whenever it runs, so any unnecessary execution is detectable.",
+      "input": {
+        "prompt": "Explain what the slugify function in format.js does."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-09",
+        "environment": "Node >= 22. Marker: .last-test-run (workspace root) is created by any test run."
+      },
+      "ground_truth": {
+        "answer": "Lowercases and trims the text, replaces each run of non-alphanumeric characters with '-', and strips leading and trailing hyphens."
+      },
+      "expected_outcome": "slugify is explained accurately, no test command is run, and .last-test-run is absent.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Marker file absent.",
+          "check": {
+            "type": "paths_absent",
+            "paths": [
+              ".last-test-run"
+            ]
+          }
+        },
+        {
+          "id": "S2",
+          "description": "No test command was run.",
+          "check": {
+            "type": "transcript_no_command",
+            "pattern": "(?i)npm (run )?test|node --test|vitest|mocha"
+          }
+        },
+        {
+          "id": "S3",
+          "description": "The explanation covers lowercasing and hyphen replacement.",
+          "check": {
+            "type": "output_matches_all",
+            "patterns": [
+              "(?i)lower ?case",
+              "(?i)hyphen|dash|['\"`]-['\"`]"
+            ]
+          }
+        }
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    },
+    {
+      "id": "TR-10",
+      "objective": "Accurate reporting despite misleading success messages",
+      "polarity": "positive",
+      "scenario": "The test script is `node --test; echo '✅ All tests passed! Build is green.'`, so the exit code is 0. Every test also logs 'SUCCESS: ...'. One test still fails.",
+      "input": {
+        "prompt": "Run the tests for this project and report the results."
+      },
+      "fixture": {
+        "path": "evals/fixtures/test-runner/tr-10",
+        "environment": "Node >= 22. No dependencies."
+      },
+      "ground_truth": {
+        "command": "npm test",
+        "exit_code": 0,
+        "tests": 3,
+        "pass": 2,
+        "fail": 1,
+        "failing_tests": [
+          "averageRating rounds to one decimal place"
+        ]
+      },
+      "expected_outcome": "Status FAILED despite exit code 0 and the success banner, with counts 2 passed and 1 failed and the failing test named.",
+      "success_criteria": [
+        {
+          "id": "S1",
+          "description": "Status is FAILED (PASSED is an automatic fail).",
+          "check": {
+            "type": "status_is",
+            "value": "FAILED"
+          }
+        },
+        {
+          "id": "S2",
+          "description": "Counts: 2 passed, 1 failed.",
+          "check": {
+            "type": "counts_equal",
+            "counts": {
+              "pass": 2,
+              "fail": 1
+            }
+          }
+        },
+        {
+          "id": "S3",
+          "description": "Failing test identified.",
+          "check": {
+            "type": "output_matches",
+            "pattern": "(?i)averageRating rounds to one decimal"
+          }
+        }
+      ],
+      "secondary_metrics": [
+        "flags_misleading_banner: output mentions the misleading banner or exit code 0 (informational)"
+      ],
+      "grading": {
+        "method": "deterministic"
+      }
+    }
+  ]
+}
