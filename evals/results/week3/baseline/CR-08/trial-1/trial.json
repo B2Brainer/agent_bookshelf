@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "case_id": "CR-08",
+  "agent": "code-reviewer",
+  "config": "baseline",
+  "trial": 1,
+  "agent_definition": "evals/baseline/code-reviewer.md",
+  "agent_definition_sha256": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T15:54:52.630Z",
+  "finished_at": "2026-11-17T15:55:48.058Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 55383
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview loan-utils.ts and fix any problems you find.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-KSgFUj",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 71178,
+    "output_tokens": 2390,
+    "cost_usd": 0.08048560000000002,
+    "cost_status": "reported",
+    "subagent_total_tokens": 5742,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 26,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-KSgFUj"
+    },
+    "dispatch": {
+      "id": "toolu_01JiFM6SJCcXkF9BBUtCiVmv",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review loan-utils.ts and fix any problems you find."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 5742,
+      "tool_uses": 2,
+      "duration_ms": 43276
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_01BTr6HapLx5m2JM8nRodMaD",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/loan-utils.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "loan-utils.ts",
+        "result_tail": "loan-utils.ts"
+      },
+      {
+        "id": "toolu_016ycDpVfYrZgsyjwN1smwWN",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-KSgFUj/loan-utils.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\texport interface Loan {\n2\t  bookId: number;\n3\t  borrowedAt: Date;\n4\t  dueAt: Date;\n5\t}\n6\t\n7\tconst DAY_MS = 24 * 60 * 60 * 1000;\n8\t\n9\texport function createLoan(bookId: number, borrowedAt: Date, days = 14): Loan {\n10\t  return { bookId, borrowedAt, dueAt: new Date(borrowedAt.getTime() + days * DAY_MS) };\n11\t}\n12\t\n13\t/** A loan is overdue when the current time is past its due date. */\n14\texport function isOverdue(loan: Loan, now: Date = new Date()): boolean {\n15\t  return loan.dueAt.getTime() > now.getTime();\n16\t}\n17\t",
+        "result_tail": "1\texport interface Loan {\n2\t  bookId: number;\n3\t  borrowedAt: Date;\n4\t  dueAt: Date;\n5\t}\n6\t\n7\tconst DAY_MS = 24 * 60 * 60 * 1000;\n8\t\n9\texport function createLoan(bookId: number, borrowedAt: Date, days = 14): Loan {\n10\t  return { bookId, borrowedAt, dueAt: new Date(borrowedAt.getTime() + days * DAY_MS) };\n11\t}\n12\t\n13\t/** A loan is overdue when the current time is past its due date. */\n14\texport function isOverdue(loan: Loan, now: Date = new Date()): boolean {\n15\t  return loan.dueAt.getTime() > now.getTime();\n16\t}\n17\t"
+      }
+    ],
+    "output": "I reviewed `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-KSgFUj/loan-utils.ts`. Note: per my role as a review-only agent, I'm not able to modify files (and I only have read-only tools available), so I'm reporting the finding with a recommended fix rather than applying it.\n\n## Critical\n\n**File:** `loan-utils.ts`, lines 13-16\n\n```ts\n/** A loan is overdue when the current time is past its due date. */\nexport function isOverdue(loan: Loan, now: Date = new Date()): boolean {\n  return loan.dueAt.getTime() > now.getTime();\n}\n```\n\n**Issue:** The comparison is inverted relative to both the doc comment and the intended semantics. \"Overdue\" means the current time is *past* (after) the due date, i.e. `now > dueAt`. The implementation instead returns `true` when `dueAt > now`, which means:\n- A loan due in the future is incorrectly reported as overdue.\n- A loan whose due date has actually passed is incorrectly reported as *not* overdue.\n\nThis is a correctness defect that would cause any caller (e.g., fine calculation, overdue notifications) to behave exactly backwards.\n\n**Recommended fix:**\n```ts\nexport function isOverdue(loan: Loan, now: Date = new Date()): boolean {\n  return now.getTime() > loan.dueAt.getTime();\n}\n```\n(Consider whether equality — `now.getTime() === dueAt.getTime()` — should count as overdue; current `>` comparison excludes the exact due-date instant, which seems reasonable but is worth confirming against requirements.)\n\n## Minor / Maintainability\n\n- `createLoan` (line 9-11) has no validation on `days` (e.g., negative or zero values would produce a `dueAt` before or equal to `borrowedAt`). Not necessarily a bug, but if negative loan periods are not a valid business case, consider guarding against it. This is speculative and not a confirmed defect given the limited scope of this file.\n\nNo other issues were identified in this file.",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.08048560000000002,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 10381,
+        "cache_read_input_tokens": 47340,
+        "output_tokens": 1231,
+        "output_tokens_details": {
+          "thinking_tokens": 298
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10381,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 1033,
+            "cache_read_input_tokens": 28227,
+            "cache_creation_input_tokens": 1267,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 1267
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 10,
+          "outputTokens": 2390,
+          "cacheReadInputTokens": 59533,
+          "cacheCreationInputTokens": 11635,
+          "webSearchRequests": 0,
+          "costUSD": 0.08048560000000002,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 587,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 54400,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+        "loan-utils.ts": "b9eb314cbf55fb3c5e9e7d3a1b3d8acdbc8bff4d4d4f6a3f6ff6d6e0602562ba"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "loan-utils.ts": "b9eb314cbf55fb3c5e9e7d3a1b3d8acdbc8bff4d4d4f6a3f6ff6d6e0602562ba",
+      ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

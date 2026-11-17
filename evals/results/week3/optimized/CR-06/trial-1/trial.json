@@ -1,0 +1,353 @@
+{
+  "schema": 1,
+  "case_id": "CR-06",
+  "agent": "code-reviewer",
+  "config": "optimized",
+  "trial": 1,
+  "agent_definition": ".claude/agents/code-reviewer.md",
+  "agent_definition_sha256": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T16:08:34.709Z",
+  "finished_at": "2026-11-17T16:09:06.212Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 31450
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview the search feature (book-search.ts and search-route.ts). Database helpers are declared in db.ts.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-SgBvQB",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 82574,
+    "output_tokens": 2461,
+    "cost_usd": 0.0863308,
+    "cost_status": "reported",
+    "subagent_total_tokens": 6851,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 42,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-SgBvQB"
+    },
+    "dispatch": {
+      "id": "toolu_01QXgTwQ4rJ9D7QbvpzoS9J9",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review the search feature (book-search.ts and search-route.ts). Database helpers are declared in db.ts."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 6851,
+      "tool_uses": 8,
+      "duration_ms": 18489
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_018vhZP29iVucqPc1fY86uHK",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/book-search.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "book-search.ts",
+        "result_tail": "book-search.ts"
+      },
+      {
+        "id": "toolu_01YCpd9WDLVNKzk6jCFT362g",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/search-route.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "search-route.ts",
+        "result_tail": "search-route.ts"
+      },
+      {
+        "id": "toolu_015m9YFsnVJZ3CR2mv5fYoKd",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts",
+        "result_tail": "db.ts"
+      },
+      {
+        "id": "toolu_01L9vwAjwMWV9Ua3hYRwaXRV",
+        "name": "Grep",
+        "input": {
+          "pattern": ".",
+          "path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-SgBvQB",
+          "output_mode": "files_with_matches",
+          "glob": "**/*.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "Found 3 files\ndb.ts\nsearch-route.ts\nbook-search.ts",
+        "result_tail": "Found 3 files\ndb.ts\nsearch-route.ts\nbook-search.ts"
+      },
+      {
+        "id": "toolu_01MeTHmwjx8M9T1r5pAVrF4x",
+        "name": "Glob",
+        "input": {
+          "pattern": "*.ts",
+          "path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-SgBvQB"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "book-search.ts\nsearch-route.ts\ndb.ts",
+        "result_tail": "book-search.ts\nsearch-route.ts\ndb.ts"
+      },
+      {
+        "id": "toolu_01SEko4f4P1aoWJx9d7U564C",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-SgBvQB/book-search.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { all } from './db.js';\n2\t\n3\texport interface BookSummary {\n4\t  id: number;\n5\t  title: string;\n6\t  author: string;\n7\t}\n8\t\n9\texport function searchBooks(query: string): BookSummary[] {\n10\t  const sql = `SELECT id, title, author FROM books WHERE title LIKE '%${query}%' OR author LIKE '%${query}%' ORDER BY title`;\n11\t  return all(sql) as unknown as BookSummary[];\n12\t}\n13\t\n14\texport function booksByAuthor(author: string): BookSummary[] {\n15\t  return all('SELECT id, title, author FROM books WHERE author = ? ORDER BY title', [author]) as unknown as BookSummary[];\n16\t}\n17\t",
+        "result_tail": "1\timport { all } from './db.js';\n2\t\n3\texport interface BookSummary {\n4\t  id: number;\n5\t  title: string;\n6\t  author: string;\n7\t}\n8\t\n9\texport function searchBooks(query: string): BookSummary[] {\n10\t  const sql = `SELECT id, title, author FROM books WHERE title LIKE '%${query}%' OR author LIKE '%${query}%' ORDER BY title`;\n11\t  return all(sql) as unknown as BookSummary[];\n12\t}\n13\t\n14\texport function booksByAuthor(author: string): BookSummary[] {\n15\t  return all('SELECT id, title, author FROM books WHERE author = ? ORDER BY title', [author]) as unknown as BookSummary[];\n16\t}\n17\t"
+      },
+      {
+        "id": "toolu_017eC7moKQ2ED4h9hcTuhzVg",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-SgBvQB/search-route.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { Router, Request, Response } from 'express';\n2\timport { searchBooks } from './book-search.js';\n3\t\n4\tconst router = Router();\n5\t\n6\trouter.get('/search', (req: Request, res: Response) => {\n7\t  const q = String(req.query.q ?? '');\n8\t  res.json(searchBooks(q));\n9\t});\n10\t\n11\texport default router;\n12\t",
+        "result_tail": "1\timport { Router, Request, Response } from 'express';\n2\timport { searchBooks } from './book-search.js';\n3\t\n4\tconst router = Router();\n5\t\n6\trouter.get('/search', (req: Request, res: Response) => {\n7\t  const q = String(req.query.q ?? '');\n8\t  res.json(searchBooks(q));\n9\t});\n10\t\n11\texport default router;\n12\t"
+      },
+      {
+        "id": "toolu_01Nkzpm53skqYMef9yX3rpco",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-SgBvQB/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t",
+        "result_tail": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t"
+      }
+    ],
+    "output": "**Critical — book-search.ts:10 — SQL injection.** `searchBooks` builds the query via direct string interpolation of user input (`req.query.q` from search-route.ts:7) into the SQL text, with no escaping. An attacker can inject arbitrary SQL (e.g. `q=%' OR '1'='1`, or UNION-based extraction, or `%'; DROP TABLE books;--` depending on sql.js statement execution semantics). This is especially severe since `db.ts` already exposes a parameterized `all(sql, params?)` API that `booksByAuthor` correctly uses on the very next lines — the vulnerable function is inconsistent with the established safe pattern in the same file.\n\nRecommended fix: use a parameterized query, e.g.:\n```ts\nconst sql = `SELECT id, title, author FROM books WHERE title LIKE ? OR author LIKE ? ORDER BY title`;\nreturn all(sql, [`%${query}%`, `%${query}%`]) as unknown as BookSummary[];\n```\n\n**Medium — search-route.ts:6-9 — No input validation/limits on `q`.** Any string (including empty string, which becomes `'%%'` and matches all rows) is accepted. There's no length cap or trimming, so pathologically large query strings could be used for inefficient wildcard scans or memory pressure. Not a security hole once the SQL injection is fixed, but worth bounding (e.g. reject/trim overly long `q`, or cap result count via `LIMIT` in `searchBooks`).\n\n**Low — book-search.ts:10 — No escaping of LIKE wildcard metacharacters.** Even after parameterizing, user-supplied `%` and `_` characters in `query` are interpreted as SQL LIKE wildcards rather than literal characters, which can produce surprising/overbroad matches. Consider escaping `%`, `_`, and the escape character itself if literal matching is desired, or document that wildcard search is intentional.\n\nNo other actionable findings in `db.ts` (declarations only, consistent with usage) or in `search-route.ts` beyond the above.",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.0863308,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 10385,
+        "cache_read_input_tokens": 47356,
+        "output_tokens": 915,
+        "output_tokens_details": {
+          "thinking_tokens": 49
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10385,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 700,
+            "cache_read_input_tokens": 28243,
+            "cache_creation_input_tokens": 1255,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 1255
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 14,
+          "outputTokens": 2461,
+          "cacheReadInputTokens": 69689,
+          "cacheCreationInputTokens": 12871,
+          "webSearchRequests": 0,
+          "costUSD": 0.0863308,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 135,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 30146,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+        "book-search.ts": "ca3e82d56d98cf6785a373767209573532077b97799d0f930d879195cdcae1aa",
+        "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+        "search-route.ts": "2c65bb9f5e8e354978386912381e5d9dc7e7a0241ae96e8cee41d395ab88b570"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "book-search.ts": "ca3e82d56d98cf6785a373767209573532077b97799d0f930d879195cdcae1aa",
+      "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+      "search-route.ts": "2c65bb9f5e8e354978386912381e5d9dc7e7a0241ae96e8cee41d395ab88b570",
+      ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

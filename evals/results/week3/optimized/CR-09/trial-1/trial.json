@@ -1,0 +1,269 @@
+{
+  "schema": 1,
+  "case_id": "CR-09",
+  "agent": "code-reviewer",
+  "config": "optimized",
+  "trial": 1,
+  "agent_definition": ".claude/agents/code-reviewer.md",
+  "agent_definition_sha256": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T16:10:31.922Z",
+  "finished_at": "2026-11-17T16:10:43.778Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 11810
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nWhich Node.js version range does package.json require?",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-tRFRsK",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 70288,
+    "output_tokens": 713,
+    "cost_usd": 0.06062500000000001,
+    "cost_status": "reported",
+    "subagent_total_tokens": 4798,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 20,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-tRFRsK"
+    },
+    "dispatch": {
+      "id": "toolu_01NfCbviLvWkaZvC31BJHGYr",
+      "subagent_type": "code-reviewer",
+      "prompt": "Which Node.js version range does package.json require?"
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 4798,
+      "tool_uses": 2,
+      "duration_ms": 5767
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_012tm4XdYcieHf1qSGa2YZEK",
+        "name": "Glob",
+        "input": {
+          "pattern": "package.json"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "package.json",
+        "result_tail": "package.json"
+      },
+      {
+        "id": "toolu_0169jfk2hVjMYGo3S9e1GSMk",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-tRFRsK/package.json"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t{\n2\t  \"name\": \"bookshelf-ratings\",\n3\t  \"version\": \"1.0.0\",\n4\t  \"private\": true,\n5\t  \"type\": \"module\",\n6\t  \"engines\": {\n7\t    \"node\": \">=20.0.0\"\n8\t  }\n9\t}\n10\t",
+        "result_tail": "1\t{\n2\t  \"name\": \"bookshelf-ratings\",\n3\t  \"version\": \"1.0.0\",\n4\t  \"private\": true,\n5\t  \"type\": \"module\",\n6\t  \"engines\": {\n7\t    \"node\": \">=20.0.0\"\n8\t  }\n9\t}\n10\t"
+      }
+    ],
+    "output": "This request falls outside my assigned role as a code review specialist (no review scope was provided), but to answer directly:\n\nThe `package.json` at `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-tRFRsK/package.json` specifies:\n\n```json\n\"engines\": {\n  \"node\": \">=20.0.0\"\n}\n```\n\nSo it requires Node.js version 20.0.0 or higher (no upper bound specified).",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.06062500000000001,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 9784,
+        "cache_read_input_tokens": 47335,
+        "output_tokens": 356,
+        "output_tokens_details": {
+          "thinking_tokens": 34
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 9784,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 173,
+            "cache_read_input_tokens": 28222,
+            "cache_creation_input_tokens": 675,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 675
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 10,
+          "outputTokens": 713,
+          "cacheReadInputTokens": 59520,
+          "cacheCreationInputTokens": 10758,
+          "webSearchRequests": 0,
+          "costUSD": 0.06062500000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 79,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 10579,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+        "package.json": "776f2ecd2350bb6992d6c2b92038464eaa4b1ca16bb7ae0b53d35fe6573b2bfb",
+        "rating.ts": "dbcd8c4e826a6e0228307e068971d0ce15c9bfb47eaaf556224c3c364e83a941"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "package.json": "776f2ecd2350bb6992d6c2b92038464eaa4b1ca16bb7ae0b53d35fe6573b2bfb",
+      "rating.ts": "dbcd8c4e826a6e0228307e068971d0ce15c9bfb47eaaf556224c3c364e83a941",
+      ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "schema": 1,
+  "case_id": "CR-07",
+  "agent": "code-reviewer",
+  "config": "baseline",
+  "trial": 1,
+  "agent_definition": "evals/baseline/code-reviewer.md",
+  "agent_definition_sha256": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T15:53:50.228Z",
+  "finished_at": "2026-11-17T15:54:52.530Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 62254
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview review-validation.ts. Database helpers are declared in db.ts.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-y8clVQ",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 79792,
+    "output_tokens": 4647,
+    "cost_usd": 0.1126384,
+    "cost_status": "reported",
+    "subagent_total_tokens": 8555,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 37,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-y8clVQ"
+    },
+    "dispatch": {
+      "id": "toolu_01KHtjk3PAi8NxzSQBUf2FGY",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review review-validation.ts. Database helpers are declared in db.ts."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 8555,
+      "tool_uses": 6,
+      "duration_ms": 48587
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_01KaChcvhfrJ5UT1d7Lb4DYw",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/review-validation.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "review-validation.ts",
+        "result_tail": "review-validation.ts"
+      },
+      {
+        "id": "toolu_01AvWGiKsf7J6x1YoUW4oKs5",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts",
+        "result_tail": "db.ts"
+      },
+      {
+        "id": "toolu_01QXAar6FycQdF2hXLeobqCR",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-y8clVQ/review-validation.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { run } from './db.js';\n2\t\n3\texport function createReview(userId: number, bookId: number, rating: number, text: string | null): number {\n4\t  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {\n5\t    throw new Error('Rating must be an integer between 1 and 5');\n6\t  }\n7\t  if (text !== null && text.length > 2000) {\n8\t    throw new Error('Review text must be at most 2000 characters');\n9\t  }\n10\t  const result = run(\n11\t    'INSERT INTO reviews (user_id, book_id, rating, review_text) VALUES (?, ?, ?, ?)',\n12\t    [userId, bookId, rating, text]\n13\t  );\n14\t  return result.lastInsertRowid;\n15\t}\n16\t\n17\texport function updateReview(reviewId: number, rating: number, text: string | null): boolean {\n18\t  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {\n19\t    throw new Error('Rating must be an integer between 1 and 5');\n20\t  }\n21\t  if (text !== null && text.length > 2000) {\n22\t    throw new Error('Review text must be at most 2000 characters');\n23\t  }\n24\t  const result = run('UPDATE reviews SET rating = ?, review_text = ? WHERE id = ?', [rating, text, reviewId]);\n25\t  return result.changes > 0;\n26\t}\n27\t\n28\texport function importReview(userId: number, bookId: number, rating: number, text: string | null): number {\n29\t  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {\n30\t    throw new Error('Rating must be an integer between 1 and 5');\n31\t  }\n32\t  if (text !== null && text.length > 2000) {\n33\t    throw new Error('Review text must be at most 2000 characters');\n34\t  }\n35\t  const result = run(\n36\t    'INSERT OR REPLACE INTO reviews (user_id, book_id, rating, review_text) VALUES (?, ?, ?, ?)',\n37\t    [userId, bookId, rating, text]\n38\t  );\n39\t  return result.lastInsertRowid;\n40\t}\n41\t",
+        "result_tail": "1\timport { run } from './db.js';\n2\t\n3\texport function createReview(userId: number, bookId: number, rating: number, text: string | null): number {\n4\t  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {\n5\t    throw new Error('Rating must be an integer between 1 and 5');\n6\t  }\n7\t  if (text !== null && text.length > 2000) {\n8\t    throw new Error('Review text must be at most 2000 characters');\n9\t  }\n10\t  const result = run(\n11\t    'INSERT INTO reviews (user_id, book_id, rating, review_text) VALUES (?, ?, ?, ?)',\n12\t    [userId, bookId, rating, text]\n13\t  );\n14\t  return result.lastInsertRowid;\n15\t}\n16\t\n17\texport function updateReview(reviewId: number, rating: number, text: string | null): boolean {\n18\t  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {\n19\t    throw new Error('Rating must be an integer between 1 and 5');\n20\t  }\n21\t  if (text !== null && text.length > 2000) {\n22\t    throw new Error('Review text must be at most 2000 characters');\n23\t  }\n24\t  const result = run('UPDATE reviews SET rating = ?, review_text = ? WHERE id = ?', [rating, text, reviewId]);\n25\t  return result.changes > 0;\n26\t}\n27\t\n28\texport function importReview(userId: number, bookId: number, rating: number, text: string | null): number {\n29\t  if (!Number.isInteger(rating) || rating < 1 || rating > 5) {\n30\t    throw new Error('Rating must be an integer between 1 and 5');\n31\t  }\n32\t  if (text !== null && text.length > 2000) {\n33\t    throw new Error('Review text must be at most 2000 characters');\n34\t  }\n35\t  const result = run(\n36\t    'INSERT OR REPLACE INTO reviews (user_id, book_id, rating, review_text) VALUES (?, ?, ?, ?)',\n37\t    [userId, bookId, rating, text]\n38\t  );\n39\t  return result.lastInsertRowid;\n40\t}\n41\t"
+      },
+      {
+        "id": "toolu_011faLwig4abkUMMNdKC7bLY",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-y8clVQ/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t",
+        "result_tail": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t"
+      },
+      {
+        "id": "toolu_01XAZ95YHjnw5EfSyxcqao1D",
+        "name": "Grep",
+        "input": {
+          "pattern": "createReview|updateReview|importReview",
+          "output_mode": "files_with_matches"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "Found 1 file\nreview-validation.ts",
+        "result_tail": "Found 1 file\nreview-validation.ts"
+      },
+      {
+        "id": "toolu_01QTFTujzpUd8ZQPJ4Gf4TmL",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/*.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "review-validation.ts\ndb.ts",
+        "result_tail": "review-validation.ts\ndb.ts"
+      }
+    ],
+    "output": "## Code Review: review-validation.ts\n\nScope reviewed: `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-y8clVQ/review-validation.ts`, with `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-y8clVQ/db.ts` consulted for the `run()` contract. Only these two files exist in the project, so no caller code was available to cross-check conventions.\n\n### High\n\n**Missing validation of `userId` / `bookId` (review-validation.ts:3, 28)**\n`createReview` and `importReview` accept `userId` and `bookId` and pass them straight into the SQL parameters without any validation (no integer check, no positivity check, no NaN check). Given that this file's entire purpose is input validation (it validates `rating` and `text` rigorously), the omission of the two other user-controlled inputs is inconsistent and a likely gap — a caller passing `NaN`, a float, zero, or a negative id will silently be persisted to the `reviews` table.\n- Recommendation: add the same style of guard used for `rating`, e.g. `if (!Number.isInteger(userId) || userId <= 0) throw new Error('userId must be a positive integer');` (and similarly for `bookId`) in all three functions.\n\n### Medium\n\n**`INSERT OR REPLACE` in `importReview` can silently discard data (review-validation.ts:36)**\n`INSERT OR REPLACE` only triggers its replace behavior when a UNIQUE/PRIMARY KEY constraint is violated. If there is a uniqueness constraint on `(user_id, book_id)` (plausible given the function's purpose of \"importing\" a review per user/book), SQLite will delete the conflicting row and insert a new one. Because the INSERT statement only specifies `user_id, book_id, rating, review_text`, any other columns not listed (e.g. `created_at`, `id` sequencing, or any audit/metadata column) will revert to their column defaults rather than being preserved — effectively losing data like the original creation timestamp.\n- This is somewhat speculative since the `reviews` table schema isn't visible in the reviewed scope, but it's a known SQLite footgun with `INSERT OR REPLACE` worth flagging/confirming.\n- Recommendation: if the intent is \"update on conflict,\" prefer an explicit `INSERT ... ON CONFLICT(user_id, book_id) DO UPDATE SET rating = excluded.rating, review_text = excluded.review_text` to avoid resetting unlisted columns.\n\n### Low / Maintainability\n\n**Duplicated validation logic across all three functions (review-validation.ts:4-9, 18-23, 29-34)**\nThe rating range check and the text length check are copy-pasted verbatim in `createReview`, `updateReview`, and `importReview`. Any future change to validation rules (e.g., widening the text limit, adding trimming) requires editing three places and risks drift.\n- Recommendation: extract a shared `function validateReviewInput(rating: number, text: string | null): void` and call it from all three functions.\n\n**No runtime type/shape guard on `text` beyond length (review-validation.ts:7, 21, 32)**\nOnly the upper bound (`> 2000`) is checked; there's no trimming or empty-string handling. This may be intentional (empty string is a legitimately valid review), but combined with the lack of a lower bound or whitespace-only check, it's worth confirming whether that's the desired behavior. Flagged as low-confidence/informational, not a confirmed defect.\n\n### No issues found with\n- Parameterization of SQL (`run(sql, params)` is used consistently; no injection risk).\n- The `rating` validation logic itself (`Number.isInteger` combined with range check correctly rejects `NaN`, floats, and out-of-range values).\n- `updateReview`'s return semantics (`result.changes > 0`) are consistent with the `RunResult` interface declared in `db.ts`.",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.1126384,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 11083,
+        "cache_read_input_tokens": 47345,
+        "output_tokens": 1600,
+        "output_tokens_details": {
+          "thinking_tokens": 86
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 11083,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 1356,
+            "cache_read_input_tokens": 28232,
+            "cache_creation_input_tokens": 1964,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 1964
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 12,
+          "outputTokens": 4647,
+          "cacheReadInputTokens": 65187,
+          "cacheCreationInputTokens": 14593,
+          "webSearchRequests": 0,
+          "costUSD": 0.1126384,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 1325,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 61342,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+        "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+        "review-validation.ts": "c6365a4255bc9cde729de2ca3549e73c876ce9724bfb1b243473ccdbdd6c45ed"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+      "review-validation.ts": "c6365a4255bc9cde729de2ca3549e73c876ce9724bfb1b243473ccdbdd6c45ed",
+      ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

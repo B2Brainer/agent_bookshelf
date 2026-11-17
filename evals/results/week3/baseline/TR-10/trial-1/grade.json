@@ -1,0 +1,93 @@
+{
+  "case_id": "TR-10",
+  "config": "baseline",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.602Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "status_is",
+      "description": "Status is FAILED (PASSED is an automatic fail).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "extracted": "FAILED",
+        "source": "inferred: output wording agrees with test execution",
+        "execution": {
+          "value": "FAILED",
+          "command": "npm test 2>&1; echo \"EXIT_CODE:$?\"",
+          "nonzero": false,
+          "tap_fail": [
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "id": "S2",
+      "type": "counts_equal",
+      "description": "Counts: 2 passed, 1 failed.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "pass": 2,
+        "fail": 1
+      }
+    },
+    {
+      "id": "S3",
+      "type": "output_matches",
+      "description": "Failing test identified.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "match": "averageRating rounds to one decimal"
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added (TR-09's .last-test-run marker counts as an added file).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    },
+    {
+      "id": "G-transcript_no_command",
+      "type": "transcript_no_command",
+      "description": "transcript_no_command: no install commands — `(?i)\\b(npm (i|install|ci|add)|npx|yarn( add| install)?|pnpm (i|install|add))\\b`.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "commands": []
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 2172,
+    "output_words": 268,
+    "output_lines": 33,
+    "output_tokens_session": 3056,
+    "subagent_tool_calls": 6,
+    "duration_ms": 34732,
+    "flags_misleading_banner": true
+  }
+}

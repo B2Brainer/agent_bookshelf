@@ -1,0 +1,71 @@
+{
+  "case_id": "CR-05",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.616Z",
+  "outcome": "FAIL",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "finding_reported",
+      "description": "D1 reported.",
+      "status": "FAIL",
+      "source": "deterministic",
+      "evidence": {
+        "reason": "D1 not found (file + line in range + keyword in the same block)"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "finding_severity_at_least",
+      "description": "D1 is labeled medium or higher.",
+      "status": "FAIL",
+      "source": "deterministic",
+      "evidence": {
+        "D1": "not reported"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "output_not_matches",
+      "description": "No finding claims that removeBookFromShelf or clearShelf fails to persist.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "match": null
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 1006,
+    "output_words": 141,
+    "output_lines": 8,
+    "output_tokens_session": 1279,
+    "subagent_tool_calls": 4,
+    "duration_ms": 16671
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "case_id": "CR-07",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.622Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "finding_reported",
+      "description": "D1 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 182,
+        "rank": 1,
+        "excerpt": "1. **Medium** — `review-validation.ts:3-40` (`createReview`, `updateReview`, `importReview`): The rating/text validation block (lines 4-9, 18-23, 29-34) is duplicated verbatim across all three functions. This violates DRY and creates a maintenance hazard: a future change to validation rules (e.g., a"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "no_finding_with_severity_at_least",
+      "description": "No critical-severity finding (the code is functionally correct).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "findings": 3,
+        "violations": []
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 2125,
+    "output_words": 278,
+    "output_lines": 9,
+    "output_tokens_session": 2775,
+    "subagent_tool_calls": 6,
+    "duration_ms": 66348
+  }
+}

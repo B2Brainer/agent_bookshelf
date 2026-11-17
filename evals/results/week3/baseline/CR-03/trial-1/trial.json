@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "case_id": "CR-03",
+  "agent": "code-reviewer",
+  "config": "baseline",
+  "trial": 1,
+  "agent_definition": "evals/baseline/code-reviewer.md",
+  "agent_definition_sha256": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T15:51:00.809Z",
+  "finished_at": "2026-11-17T15:51:52.429Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 51572
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview user-admin.ts. Database helpers are declared in db.ts.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-fUgWJu",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 73097,
+    "output_tokens": 4995,
+    "cost_usd": 0.11328740000000001,
+    "cost_status": "reported",
+    "subagent_total_tokens": 8687,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 29,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu"
+    },
+    "dispatch": {
+      "id": "toolu_01Vx7j7X2opMLE5uNdiyZpE7",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review user-admin.ts. Database helpers are declared in db.ts."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 8687,
+      "tool_uses": 4,
+      "duration_ms": 37225
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_01CiwC9DJxgcQtCfejsrfSdx",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/user-admin.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "user-admin.ts",
+        "result_tail": "user-admin.ts"
+      },
+      {
+        "id": "toolu_01VfrryQGXhLU8z1y2hLaFJa",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts",
+        "result_tail": "db.ts"
+      },
+      {
+        "id": "toolu_018vZ3rtGeNGEw5A81CCai7o",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { all, get, run } from './db.js';\n2\t\n3\tinterface User {\n4\t  id: number;\n5\t  username: string;\n6\t  display_name: string;\n7\t  role: string;\n8\t}\n9\t\n10\texport function canDeleteUsers(user: User): boolean {\n11\t  if (user.role = 'admin') {\n12\t    return true;\n13\t  }\n14\t  return false;\n15\t}\n16\t\n17\texport function deleteUser(actor: User, userId?: number): void {\n18\t  if (!canDeleteUsers(actor)) {\n19\t    throw new Error('Forbidden');\n20\t  }\n21\t  if (userId === undefined) {\n22\t    run('DELETE FROM users');\n23\t    return;\n24\t  }\n25\t  run('DELETE FROM users WHERE id = ?', [userId]);\n26\t}\n27\t\n28\texport function findUsers(term: string): User[] {\n29\t  var results = all('SELECT * FROM users WHERE username LIKE ?', [`%${term}%`]) as unknown as User[];\n30\t  return results;\n31\t}\n32\t\n33\texport function getUser(id: number): User {\n34\t  return get('SELECT * FROM users WHERE id = ?', [id]) as unknown as User;\n35\t}\n36\t\n37\texport function countUsers(): number {\n38\t  const rows = all('SELECT * FROM users');\n39\t  return rows.length;\n40\t}\n41\t\n42\texport function renameUser(id: number, displayName: string): void {\n43\t  if (displayName.length > 0) {\n44\t    run('UPDATE users SET display_name = ? WHERE id = ?', [displayName, id]);\n45\t  }\n46\t}\n47\t\n48\texport function isValidUsername(name: string): boolean {\n49\t  return /^[a-z0-9_]{3,30}$/.test(name) == true;\n50\t}\n51\t",
+        "result_tail": "1\timport { all, get, run } from './db.js';\n2\t\n3\tinterface User {\n4\t  id: number;\n5\t  username: string;\n6\t  display_name: string;\n7\t  role: string;\n8\t}\n9\t\n10\texport function canDeleteUsers(user: User): boolean {\n11\t  if (user.role = 'admin') {\n12\t    return true;\n13\t  }\n14\t  return false;\n15\t}\n16\t\n17\texport function deleteUser(actor: User, userId?: number): void {\n18\t  if (!canDeleteUsers(actor)) {\n19\t    throw new Error('Forbidden');\n20\t  }\n21\t  if (userId === undefined) {\n22\t    run('DELETE FROM users');\n23\t    return;\n24\t  }\n25\t  run('DELETE FROM users WHERE id = ?', [userId]);\n26\t}\n27\t\n28\texport function findUsers(term: string): User[] {\n29\t  var results = all('SELECT * FROM users WHERE username LIKE ?', [`%${term}%`]) as unknown as User[];\n30\t  return results;\n31\t}\n32\t\n33\texport function getUser(id: number): User {\n34\t  return get('SELECT * FROM users WHERE id = ?', [id]) as unknown as User;\n35\t}\n36\t\n37\texport function countUsers(): number {\n38\t  const rows = all('SELECT * FROM users');\n39\t  return rows.length;\n40\t}\n41\t\n42\texport function renameUser(id: number, displayName: string): void {\n43\t  if (displayName.length > 0) {\n44\t    run('UPDATE users SET display_name = ? WHERE id = ?', [displayName, id]);\n45\t  }\n46\t}\n47\t\n48\texport function isValidUsername(name: string): boolean {\n49\t  return /^[a-z0-9_]{3,30}$/.test(name) == true;\n50\t}\n51\t"
+      },
+      {
+        "id": "toolu_01L2YkNBCiyZD2hrMBXJrUVx",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t",
+        "result_tail": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t"
+      }
+    ],
+    "output": "## Code Review: user-admin.ts\n\nScope: `user-admin.ts` (reviewed against `db.ts` helper signatures).\n\n### Critical\n\n1. **Assignment instead of comparison in `canDeleteUsers`** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:11`\n   ```ts\n   if (user.role = 'admin') {\n   ```\n   This is `=` (assignment), not `==`/`===`. It unconditionally sets `user.role` to `'admin'` and the assignment expression evaluates truthy, so `canDeleteUsers` **always returns `true`** regardless of the actual caller's role. This is a privilege-escalation bug: any user, including non-admins, can delete users.\n   Fix: `if (user.role === 'admin')`.\n\n2. **Unscoped delete wipes the entire table** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:21-23`\n   ```ts\n   if (userId === undefined) {\n     run('DELETE FROM users');\n     return;\n   }\n   ```\n   When `userId` is omitted (e.g., the caller forgets the optional parameter, or it's `undefined` due to an upstream bug), this silently deletes **all rows** in `users`. Combined with finding #1 (role check always passing), this means any caller can trivially wipe the whole user table. Even once #1 is fixed, this is a dangerous implicit behavior for an optional parameter — a typo or missed argument becomes a mass-deletion. Recommend requiring `userId` (make it mandatory) or exposing a clearly separate, explicitly named function (e.g., `deleteAllUsers`) instead of overloading `deleteUser` via `undefined`.\n\n### High\n\n3. **`getUser` return type lies about nullability** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:33-35`\n   ```ts\n   export function getUser(id: number): User {\n     return get('SELECT * FROM users WHERE id = ?', [id]) as unknown as User;\n   }\n   ```\n   `db.ts` declares `get` as returning `Record<string, unknown> | undefined`. When no row matches, this function returns `undefined` at runtime but the type system claims it returns `User`. Callers relying on the type will dereference `undefined` and crash, or worse, silently propagate bad data (e.g., into `canDeleteUsers`/`deleteUser` for an actor lookup). The `as unknown as User` cast masks this. Fix: change the signature to `User | undefined` and have callers handle the missing case.\n\n### Medium\n\n4. **`countUsers` fetches all rows/columns just to count them** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:37-40`\n   ```ts\n   const rows = all('SELECT * FROM users');\n   return rows.length;\n   ```\n   This pulls every column of every row into memory for a simple count, which is wasteful and will scale poorly. Prefer `SELECT COUNT(*) AS count FROM users` and read the scalar via `get`.\n\n5. **Redundant/loose boolean comparison** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:49`\n   ```ts\n   return /^[a-z0-9_]{3,30}$/.test(name) == true;\n   ```\n   `.test()` already returns a boolean; comparing with `== true` is redundant and uses loose equality (inconsistent with best practice and with strict typing elsewhere in the file). Simplify to `return /^[a-z0-9_]{3,30}$/.test(name);`.\n\n6. **Inconsistent variable declaration style** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:29`\n   ```ts\n   var results = all(...) as unknown as User[];\n   ```\n   Every other function in the file uses `const`. The lone `var` is inconsistent with file convention and with idiomatic modern TypeScript (no reassignment occurs, so `const` is appropriate).\n\n### Low\n\n7. **Silent no-op on empty `displayName`** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:42-46`\n   `renameUser` silently does nothing if `displayName.length === 0`, giving the caller no feedback that the rename failed. Consider throwing (consistent with `deleteUser`'s `Forbidden` error pattern) so misuse is observable rather than silently swallowed.\n\n8. **Magic string role check** — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-fUgWJu/user-admin.ts:11`\n   `'admin'` is a bare string literal with no shared constant/enum/type (`role: string` is unconstrained). Low risk currently but worth tightening (e.g., a `Role` union type) to avoid future typos replicating the class of bug found in #1.\n\nNo issues found with SQL injection handling — all queries in this file correctly use parameterized placeholders (`?`) rather than string interpolation.",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.11328740000000001,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 11667,
+        "cache_read_input_tokens": 47345,
+        "output_tokens": 1516,
+        "output_tokens_details": {
+          "thinking_tokens": 100
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 11667,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 1256,
+            "cache_read_input_tokens": 28232,
+            "cache_creation_input_tokens": 2548,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 2548
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 10,
+          "outputTokens": 4995,
+          "cacheReadInputTokens": 59522,
+          "cacheCreationInputTokens": 13565,
+          "webSearchRequests": 0,
+          "costUSD": 0.11328740000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 1349,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 50674,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+        "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+        "user-admin.ts": "38f901e9cb6b049da3dab0d2f9a011bbc10bee480b0074a540b2d2a2aabf575f"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+      "user-admin.ts": "38f901e9cb6b049da3dab0d2f9a011bbc10bee480b0074a540b2d2a2aabf575f",
+      ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

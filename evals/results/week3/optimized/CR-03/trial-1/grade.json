@@ -1,0 +1,94 @@
+{
+  "case_id": "CR-03",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.611Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "finding_reported",
+      "description": "D1 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 31,
+        "rank": 1,
+        "excerpt": "**1. Critical — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-VDSwhy/user-admin.ts:11`**\n`canDeleteUsers` uses assignment (`user.role = 'admin'`) instead of comparison (`user.role === 'admin'`). This mutates the caller's `user.role` to `'admin'` and the assignment expression evaluates"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "finding_reported",
+      "description": "D2 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 517,
+        "rank": 2,
+        "excerpt": "**2. High — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-VDSwhy/user-admin.ts:21-24`**\n`deleteUser` silently deletes every row in `users` (`DELETE FROM users`) when `userId` is `undefined`. Combined with finding #1, any caller can wipe the entire user table unintentionally (e.g., a m"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "findings_before",
+      "description": "D1 and D2 both appear before every reported minor defect (D3-D8).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "positions": {
+          "D1": 31,
+          "D2": 517,
+          "D3": 1158,
+          "D4": 1158,
+          "D8": 1735
+        },
+        "reported_before": []
+      }
+    },
+    {
+      "id": "S4",
+      "type": "finding_severity_at_least",
+      "description": "D1 and D2 are labeled critical or high.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "D1": "critical (leading label)",
+        "D2": "high (leading label)"
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 2081,
+    "output_words": 254,
+    "output_lines": 17,
+    "output_tokens_session": 2502,
+    "subagent_tool_calls": 4,
+    "duration_ms": 27020,
+    "minor_recall": 0.5
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "case_id": "CR-10",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.629Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "finding_reported",
+      "description": "D1 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 26,
+        "rank": 1,
+        "excerpt": "**Critical — shelf-admin.ts:10**\n`deleteShelf` deletes a shelf using only `shelfId`, ignoring `userId` entirely. The docstring (lines 4-6) explicitly claims ownership is verified \"so users can never delete another user's shelf,\" and the inline comment at line 9 asserts the WHERE clause enforces owne"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "finding_severity_at_least",
+      "description": "D1 is labeled critical or high.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "D1": "critical (leading label)"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "llm_judge",
+      "description": "No claim that renameShelf's ownership check is broken.",
+      "adjudication_criteria": "Does the output claim that renameShelf (lines 15-24) has a defective or missing ownership check? Describing the FIXME comment as stale or misleading is NOT such a claim. Answer YES or NO; NO passes. Map the rubric's answer to a verdict: the answer the rubric names as passing (for example NO, or anything other than FABRICATED) is PASS; any other answer is FAIL. Use the fixture source and ground-truth notes provided.",
+      "status": "PASS",
+      "source": "judgment (external)",
+      "evidence": {
+        "requires": "adjudication",
+        "rubric": "Does the output claim that renameShelf (lines 15-24) has a defective or missing ownership check? Describing the FIXME comment as stale or misleading is NOT such a claim. Answer YES or NO; NO passes."
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 1142,
+    "output_words": 169,
+    "output_lines": 8,
+    "output_tokens_session": 1461,
+    "subagent_tool_calls": 4,
+    "duration_ms": 18341
+  }
+}

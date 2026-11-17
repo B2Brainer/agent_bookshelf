@@ -1,0 +1,323 @@
+{
+  "schema": 1,
+  "case_id": "CR-02",
+  "agent": "code-reviewer",
+  "config": "optimized",
+  "trial": 1,
+  "agent_definition": ".claude/agents/code-reviewer.md",
+  "agent_definition_sha256": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T16:06:27.974Z",
+  "finished_at": "2026-11-17T16:07:07.595Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 39570
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview shelf-service.ts. Database helpers are declared in db.ts.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-mFhbyC",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 78135,
+    "output_tokens": 3633,
+    "cost_usd": 0.0977825,
+    "cost_status": "reported",
+    "subagent_total_tokens": 7872,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 35,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-mFhbyC"
+    },
+    "dispatch": {
+      "id": "toolu_01V32RRva8bPib8Ra294J3Jv",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review shelf-service.ts. Database helpers are declared in db.ts."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 7872,
+      "tool_uses": 6,
+      "duration_ms": 29239
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_01AYMb4AJEK8AjXcjJkpyN7t",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/shelf-service.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "shelf-service.ts",
+        "result_tail": "shelf-service.ts"
+      },
+      {
+        "id": "toolu_01JvzTbis2H74SHC2p8JzXbC",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts",
+        "result_tail": "db.ts"
+      },
+      {
+        "id": "toolu_01NcmsCcv6XSM8XCeaKmwQPs",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-mFhbyC/shelf-service.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { all, get, run } from './db.js';\n2\t\n3\tconst PAGE_SIZE = 20;\n4\t\n5\texport function listShelfBooks(shelfId: number, page: number): Record<string, unknown>[] {\n6\t  // Pages are 1-based: page 1 is the first page.\n7\t  const offset = page * PAGE_SIZE;\n8\t  return all(\n9\t    'SELECT b.* FROM books b JOIN shelf_books sb ON sb.book_id = b.id WHERE sb.shelf_id = ? LIMIT ? OFFSET ?',\n10\t    [shelfId, PAGE_SIZE, offset]\n11\t  );\n12\t}\n13\t\n14\texport function moveBook(bookId: number, fromShelfId: number, toShelfId: number): boolean {\n15\t  run('DELETE FROM shelf_books WHERE shelf_id = ? AND book_id = ?', [fromShelfId, bookId]);\n16\t\n17\t  const target = get('SELECT id FROM shelves WHERE id = ?', [toShelfId]);\n18\t  if (!target) {\n19\t    return false;\n20\t  }\n21\t\n22\t  run('INSERT INTO shelf_books (shelf_id, book_id) VALUES (?, ?)', [toShelfId, bookId]);\n23\t  return true;\n24\t}\n25\t\n26\texport function shelfLabel(name: string, count: number): string {\n27\t  const tmp = name.trim();\n28\t  return `${tmp} (${count})`;\n29\t}\n30\t",
+        "result_tail": "1\timport { all, get, run } from './db.js';\n2\t\n3\tconst PAGE_SIZE = 20;\n4\t\n5\texport function listShelfBooks(shelfId: number, page: number): Record<string, unknown>[] {\n6\t  // Pages are 1-based: page 1 is the first page.\n7\t  const offset = page * PAGE_SIZE;\n8\t  return all(\n9\t    'SELECT b.* FROM books b JOIN shelf_books sb ON sb.book_id = b.id WHERE sb.shelf_id = ? LIMIT ? OFFSET ?',\n10\t    [shelfId, PAGE_SIZE, offset]\n11\t  );\n12\t}\n13\t\n14\texport function moveBook(bookId: number, fromShelfId: number, toShelfId: number): boolean {\n15\t  run('DELETE FROM shelf_books WHERE shelf_id = ? AND book_id = ?', [fromShelfId, bookId]);\n16\t\n17\t  const target = get('SELECT id FROM shelves WHERE id = ?', [toShelfId]);\n18\t  if (!target) {\n19\t    return false;\n20\t  }\n21\t\n22\t  run('INSERT INTO shelf_books (shelf_id, book_id) VALUES (?, ?)', [toShelfId, bookId]);\n23\t  return true;\n24\t}\n25\t\n26\texport function shelfLabel(name: string, count: number): string {\n27\t  const tmp = name.trim();\n28\t  return `${tmp} (${count})`;\n29\t}\n30\t"
+      },
+      {
+        "id": "toolu_01KzUua1aLk2KasvVyBeBKtK",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-mFhbyC/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t",
+        "result_tail": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t"
+      },
+      {
+        "id": "toolu_011BUw52cYkPTQ5bjGen2Uy7",
+        "name": "Grep",
+        "input": {
+          "pattern": "saveDb",
+          "output_mode": "content",
+          "-n": true
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts:10:export declare function saveDb(): void;",
+        "result_tail": "db.ts:10:export declare function saveDb(): void;"
+      },
+      {
+        "id": "toolu_01KeyPaX1tx41NmpDcN4jc4a",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/*.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "shelf-service.ts\ndb.ts",
+        "result_tail": "shelf-service.ts\ndb.ts"
+      }
+    ],
+    "output": "## Findings\n\n**1. [High] `shelf-service.ts:6-7` — Off-by-one pagination bug contradicting its own comment**\n\n```\n// Pages are 1-based: page 1 is the first page.\nconst offset = page * PAGE_SIZE;\n```\n\nWith `page=1` (the documented first page), `offset` becomes `20`, so the first 20 rows (the actual first page) are skipped and page 2's data is returned instead. The formula should be `(page - 1) * PAGE_SIZE` to match the stated 1-based contract.\n\n**2. [High] `shelf-service.ts:15-23` — Data loss when target shelf does not exist**\n\n`moveBook` deletes the `shelf_books` row for `fromShelfId` before verifying that `toShelfId` exists:\n\n```\nrun('DELETE FROM shelf_books WHERE shelf_id = ? AND book_id = ?', [fromShelfId, bookId]);\nconst target = get('SELECT id FROM shelves WHERE id = ?', [toShelfId]);\nif (!target) { return false; }\nrun('INSERT INTO shelf_books ...');\n```\n\nIf `toShelfId` is invalid, the function returns `false`, but the book has already been removed from `fromShelfId` with no insertion into any shelf — the book silently disappears from the user's shelves. The target shelf should be validated before the delete runs (or the delete/insert pair should be wrapped in a transaction with rollback on failure).\n\n**3. [Medium] `shelf-service.ts:15-23` — No transactional guarantee around delete+insert**\n\nEven once the ordering in #2 is fixed, the delete and insert are two independent `run()` calls with no transaction. If the insert throws or the process is interrupted between the two statements, the book ends up on neither shelf. Consider wrapping both statements in a transaction (`BEGIN`/`COMMIT`/`ROLLBACK`) if the underlying `run`/db layer supports it, so the move is atomic.\n\n**4. [Low] `shelf-service.ts:14-24` — No validation that `bookId` exists**\n\n`moveBook` never checks that `bookId` refers to an existing book before deleting/inserting `shelf_books` rows. If `fromShelfId`/`bookId` don't correspond to an existing association, the function still proceeds to insert a `shelf_books` row for `toShelfId` as long as the target shelf exists, effectively \"moving\" a book that was never on the source shelf. This may be intentional, but it is not guarded or documented, and should either be validated explicitly or noted as intended behavior.",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.0977825,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 10575,
+        "cache_read_input_tokens": 47346,
+        "output_tokens": 1087,
+        "output_tokens_details": {
+          "thinking_tokens": 70
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10575,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 857,
+            "cache_read_input_tokens": 28233,
+            "cache_creation_input_tokens": 1455,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 1455
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 12,
+          "outputTokens": 3633,
+          "cacheReadInputTokens": 65105,
+          "cacheCreationInputTokens": 13018,
+          "webSearchRequests": 0,
+          "costUSD": 0.0977825,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 1296,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 38489,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+        "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+        "shelf-service.ts": "6c0d1bf99a056ba4c8fe1e4da3c73ff84eab64334e2eca6241784f32abcef234"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+      "shelf-service.ts": "6c0d1bf99a056ba4c8fe1e4da3c73ff84eab64334e2eca6241784f32abcef234",
+      ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

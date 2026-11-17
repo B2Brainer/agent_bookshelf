@@ -1,0 +1,84 @@
+{
+  "case_id": "CR-06",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.619Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "finding_reported",
+      "description": "D1 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 13,
+        "rank": 1,
+        "excerpt": "**Critical — book-search.ts:10 — SQL injection.** `searchBooks` builds the query via direct string interpolation of user input (`req.query.q` from search-route.ts:7) into the SQL text, with no escaping. An attacker can inject arbitrary SQL (e.g. `q=%' OR '1'='1`, or UNION-based extraction, or `%'; D"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "finding_severity_at_least",
+      "description": "D1 is labeled critical or high.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "D1": "critical (leading label)"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "finding_rank",
+      "description": "D1 is the first finding.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "rank": 1,
+        "max_rank": 1
+      }
+    },
+    {
+      "id": "S4",
+      "type": "output_not_matches",
+      "description": "booksByAuthor is not reported as injectable.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "match": null
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 1853,
+    "output_words": 268,
+    "output_lines": 13,
+    "output_tokens_session": 2461,
+    "subagent_tool_calls": 8,
+    "duration_ms": 31450
+  }
+}

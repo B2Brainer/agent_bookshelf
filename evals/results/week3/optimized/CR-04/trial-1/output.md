@@ -1,0 +1,13 @@
+No actionable findings beyond the following.
+
+**High** — `shelf-model.ts:16-18` — `getShelfById` queries `shelves` by `id` only, with no `user_id` scoping. It is exported and used internally after insert (line 28, safe), but as a public API on a per-user resource it provides no ownership check. If any caller outside this file uses `getShelfById` directly (e.g., for a "get shelf" or "rename shelf" route) instead of `getShelvesByUser`/`deleteShelf` (which do scope by `user_id`), it would allow one user to read another user's shelf by guessing/iterating IDs (IDOR). Recommend adding an optional `userId` parameter or a separate `getShelfByIdForUser(id, userId)` for any external-facing use, keeping the unscoped variant private/internal only.
+
+**Medium** — `shelf-model.ts:13,17` — Results are cast with `as unknown as Shelf[]` / `as unknown as Shelf | undefined`, which fully bypasses structural type checking against the `db.ts` signatures (`Record<string, unknown>[]`/`Record<string, unknown> | undefined`). If a column is renamed, missing, or has a different runtime type than declared in `Shelf` (e.g., `id` coming back as a string from sql.js), TypeScript will not catch it. Recommend a narrower validating mapper (even a simple runtime check/cast per field) instead of the double `unknown` cast, or at least a single `as Shelf[]` without funneling through `unknown` so some structural compatibility checking is retained.
+
+**Low** — `shelf-model.ts:20-29` — `createShelf` has no uniqueness check (in code or visible schema constraint) preventing a user from creating multiple shelves with the identical trimmed name, and no handling for a potential unique-constraint error from `run()` if such a constraint exists at the DB level. If duplicate names are not intended, add either a pre-check (`SELECT` for existing name) guarded by a DB unique constraint, or catch/translate the constraint violation into a clear domain error.
+
+**Low** — `shelf-model.ts:26-28` — `getShelfById(result.lastInsertRowid)!` uses a non-null assertion immediately after insert. This is fine in the normal path, but if `run()`'s `lastInsertRowid` semantics in `db.ts`'s sql.js-backed implementation ever return something unexpected (e.g., 0 on certain drivers/edge cases), this will throw a confusing "undefined is not Shelf" style failure at the `!` rather than a clear error. Consider an explicit check with a descriptive error message instead of the bare assertion.
+
+Files reviewed:
+- /private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-UPl5d0/shelf-model.ts
+- /private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-UPl5d0/db.ts

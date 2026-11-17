@@ -1,0 +1,8 @@
+{
+  "S1": {
+    "verdict": "PASS",
+    "by": "external",
+    "note": "The agent clearly reports that tests could not execute because the project has no test script or test suite. This satisfies the BLOCKED status criterion.",
+    "item_id": "1ae21837985d"
+  }
+}

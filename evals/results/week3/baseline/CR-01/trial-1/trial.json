@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "case_id": "CR-01",
+  "agent": "code-reviewer",
+  "config": "baseline",
+  "trial": 1,
+  "agent_definition": "evals/baseline/code-reviewer.md",
+  "agent_definition_sha256": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T15:49:37.178Z",
+  "finished_at": "2026-11-17T15:50:01.579Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 24353
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview review-model.ts. Database helpers are declared in db.ts.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-Nc4PRG",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 71599,
+    "output_tokens": 2126,
+    "cost_usd": 0.0873952,
+    "cost_status": "reported",
+    "subagent_total_tokens": 6052,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 24,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-Nc4PRG"
+    },
+    "dispatch": {
+      "id": "toolu_017b59pJ63oewPGJxJqfRvxN",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review review-model.ts. Database helpers are declared in db.ts."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 6052,
+      "tool_uses": 4,
+      "duration_ms": 14465
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_01JWUpmMHUuxvDiuCGfNqNZo",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/review-model.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "review-model.ts",
+        "result_tail": "review-model.ts"
+      },
+      {
+        "id": "toolu_01EQBcNfVvfvijah2W6SgKRY",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts",
+        "result_tail": "db.ts"
+      },
+      {
+        "id": "toolu_0135UmMtU7ApBcu3zVY1QCUD",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-Nc4PRG/review-model.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { get, run } from './db.js';\n2\t\n3\texport interface Review {\n4\t  id: number;\n5\t  user_id: number;\n6\t  book_id: number;\n7\t  rating: number;\n8\t  review_text: string | null;\n9\t}\n10\t\n11\texport function getReviewById(id: number): Review | undefined {\n12\t  return get('SELECT * FROM reviews WHERE id = ?', [id]) as unknown as Review | undefined;\n13\t}\n14\t\n15\t/**\n16\t * Deletes a single review, but only if it belongs to the given user.\n17\t * Returns true when a review was removed.\n18\t */\n19\texport function deleteReview(reviewId: number, userId: number): boolean {\n20\t  const result = run('DELETE FROM reviews WHERE id = ? OR user_id = ?', [reviewId, userId]);\n21\t  return result.changes > 0;\n22\t}\n23\t",
+        "result_tail": "1\timport { get, run } from './db.js';\n2\t\n3\texport interface Review {\n4\t  id: number;\n5\t  user_id: number;\n6\t  book_id: number;\n7\t  rating: number;\n8\t  review_text: string | null;\n9\t}\n10\t\n11\texport function getReviewById(id: number): Review | undefined {\n12\t  return get('SELECT * FROM reviews WHERE id = ?', [id]) as unknown as Review | undefined;\n13\t}\n14\t\n15\t/**\n16\t * Deletes a single review, but only if it belongs to the given user.\n17\t * Returns true when a review was removed.\n18\t */\n19\texport function deleteReview(reviewId: number, userId: number): boolean {\n20\t  const result = run('DELETE FROM reviews WHERE id = ? OR user_id = ?', [reviewId, userId]);\n21\t  return result.changes > 0;\n22\t}\n23\t"
+      },
+      {
+        "id": "toolu_016ChrvpcFnwWYajVod3JvNh",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-Nc4PRG/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t",
+        "result_tail": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t"
+      }
+    ],
+    "output": "## Findings\n\n### Critical\n\n**review-model.ts:20 — `deleteReview` uses `OR` instead of `AND`, causing deletion of unrelated reviews/data loss and an authorization bypass.**\n\n```ts\nconst result = run('DELETE FROM reviews WHERE id = ? OR user_id = ?', [reviewId, userId]);\n```\n\nThe docstring above it explicitly states the intended behavior: \"Deletes a single review, but only if it belongs to the given user.\" With `OR`, this statement does two dangerous things:\n\n1. **Authorization bypass**: Any authenticated user can delete a review they don't own by passing an arbitrary `reviewId` — the `user_id = ?` clause alone (via `OR`) will never block it because the `id = ?` clause matches independently.\n2. **Unintended mass deletion**: Calling `deleteReview(someReviewId, userId)` deletes *all* reviews written by `userId`, not just the single targeted review — a one-call data-loss bug. For example, `deleteReview(999999, 42)` (a non-existent review id) will still delete every review belonging to user 42.\n\n**Fix:**\n```ts\nconst result = run('DELETE FROM reviews WHERE id = ? AND user_id = ?', [reviewId, userId]);\n```\n\nThis is a correctness/security defect with concrete, severe impact (unauthorized deletion + unintended bulk data loss), not speculative — it directly contradicts the function's own documented contract.\n\n### Minor / Maintainability\n\n**review-model.ts:12 — double type assertion (`as unknown as Review | undefined`) bypasses type safety.**\n\n`get()` in db.ts returns `Record<string, unknown> | undefined`. Casting through `unknown` silently suppresses any mismatch between the SQL row shape and the `Review` interface (e.g., if a column is renamed or `review_text` comes back as something unexpected from sql.js). This is a common pattern for DB layers lacking a validation/mapping layer, but it means type errors here are not caught by the compiler. Not blocking, but worth noting as a maintainability trade-off if this pattern is repeated across other model files — consider a small runtime mapping/validation helper if correctness here matters.\n\nNo other issues (e.g., SQL injection, missing null checks beyond what's shown, `saveDb()` usage) were found in the reviewed scope — `getReviewById` correctly uses parameterized queries and returns `undefined` naturally via `get`'s signature.",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.0873952,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 10469,
+        "cache_read_input_tokens": 47346,
+        "output_tokens": 980,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10469,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 826,
+            "cache_read_input_tokens": 28233,
+            "cache_creation_input_tokens": 1349,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 1349
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 10,
+          "outputTokens": 2126,
+          "cacheReadInputTokens": 55896,
+          "cacheCreationInputTokens": 15693,
+          "webSearchRequests": 0,
+          "costUSD": 0.0873952,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 9,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 23374,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e",
+        "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+        "review-model.ts": "ac62daa6800b9201735945573c56f13bccde93009102d0ec2f2a18a6ecec80ee"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+      "review-model.ts": "ac62daa6800b9201735945573c56f13bccde93009102d0ec2f2a18a6ecec80ee",
+      ".claude/agents/code-reviewer.md": "1e6cca1d969be8e3306f590d32aaadcd6e60f3415d159f19da3281955a06e70e"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

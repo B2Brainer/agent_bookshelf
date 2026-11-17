@@ -1,0 +1,96 @@
+{
+  "case_id": "TR-03",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.636Z",
+  "outcome": "FAIL",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "status_is",
+      "description": "Status is BLOCKED.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "extracted": "BLOCKED",
+        "source": "Status line"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "output_matches",
+      "description": "The blocking reason identifies the missing dependency.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "match": "Mocha"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "transcript_no_command",
+      "description": "No install or npx command was run.",
+      "status": "FAIL",
+      "source": "deterministic",
+      "evidence": {
+        "commands": [
+          "which mocha 2>&1; npx --no-install mocha --version 2>&1; npm ls -g mocha 2>&1"
+        ]
+      }
+    },
+    {
+      "id": "S4",
+      "type": "paths_absent",
+      "description": "No node_modules or lockfile created in the workspace.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "present": []
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added (TR-09's .last-test-run marker counts as an added file).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    },
+    {
+      "id": "G-transcript_no_command",
+      "type": "transcript_no_command",
+      "description": "transcript_no_command: no install commands — `(?i)\\b(npm (i|install|ci|add)|npx|yarn( add| install)?|pnpm (i|install|add))\\b`.",
+      "status": "FAIL",
+      "source": "deterministic",
+      "evidence": {
+        "commands": [
+          "which mocha 2>&1; npx --no-install mocha --version 2>&1; npm ls -g mocha 2>&1"
+        ]
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 1106,
+    "output_words": 120,
+    "output_lines": 14,
+    "output_tokens_session": 1662,
+    "subagent_tool_calls": 5,
+    "duration_ms": 260174
+  }
+}

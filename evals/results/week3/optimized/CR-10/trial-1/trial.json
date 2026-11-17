@@ -1,0 +1,295 @@
+{
+  "schema": 1,
+  "case_id": "CR-10",
+  "agent": "code-reviewer",
+  "config": "optimized",
+  "trial": 1,
+  "agent_definition": ".claude/agents/code-reviewer.md",
+  "agent_definition_sha256": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T16:10:43.814Z",
+  "finished_at": "2026-11-17T16:11:02.203Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 18341
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview shelf-admin.ts. Database helpers are declared in db.ts.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-bVzWwn",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 71541,
+    "output_tokens": 1461,
+    "cost_usd": 0.071539,
+    "cost_status": "reported",
+    "subagent_total_tokens": 5813,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 27,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-bVzWwn"
+    },
+    "dispatch": {
+      "id": "toolu_016q7RNMkiUmR7THr7ZnyrMa",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review shelf-admin.ts. Database helpers are declared in db.ts."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 5813,
+      "tool_uses": 4,
+      "duration_ms": 10081
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_0178aDYjtwikCptoXEthBizz",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/shelf-admin.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "shelf-admin.ts",
+        "result_tail": "shelf-admin.ts"
+      },
+      {
+        "id": "toolu_016a4XTwXhq6pJVDv4dgiree",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts",
+        "result_tail": "db.ts"
+      },
+      {
+        "id": "toolu_01YVGqK8HBSXzG7qxmw9sBPw",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-bVzWwn/shelf-admin.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { get, run, saveDb } from './db.js';\n2\t\n3\t/**\n4\t * Deletes a shelf.\n5\t * Security: verifies that the shelf belongs to `userId` before deleting,\n6\t * so users can never delete another user's shelf.\n7\t */\n8\texport function deleteShelf(shelfId: number, userId: number): boolean {\n9\t  // Ownership is enforced by the WHERE clause below.\n10\t  const result = run('DELETE FROM shelves WHERE id = ?', [shelfId]);\n11\t  saveDb();\n12\t  return result.changes > 0;\n13\t}\n14\t\n15\texport function renameShelf(shelfId: number, userId: number, name: string): boolean {\n16\t  // FIXME: this looks broken — the ownership check may be wrong.\n17\t  const shelf = get('SELECT id FROM shelves WHERE id = ? AND user_id = ?', [shelfId, userId]);\n18\t  if (!shelf) {\n19\t    return false;\n20\t  }\n21\t  run('UPDATE shelves SET name = ? WHERE id = ? AND user_id = ?', [name.trim(), shelfId, userId]);\n22\t  saveDb();\n23\t  return true;\n24\t}\n25\t",
+        "result_tail": "1\timport { get, run, saveDb } from './db.js';\n2\t\n3\t/**\n4\t * Deletes a shelf.\n5\t * Security: verifies that the shelf belongs to `userId` before deleting,\n6\t * so users can never delete another user's shelf.\n7\t */\n8\texport function deleteShelf(shelfId: number, userId: number): boolean {\n9\t  // Ownership is enforced by the WHERE clause below.\n10\t  const result = run('DELETE FROM shelves WHERE id = ?', [shelfId]);\n11\t  saveDb();\n12\t  return result.changes > 0;\n13\t}\n14\t\n15\texport function renameShelf(shelfId: number, userId: number, name: string): boolean {\n16\t  // FIXME: this looks broken — the ownership check may be wrong.\n17\t  const shelf = get('SELECT id FROM shelves WHERE id = ? AND user_id = ?', [shelfId, userId]);\n18\t  if (!shelf) {\n19\t    return false;\n20\t  }\n21\t  run('UPDATE shelves SET name = ? WHERE id = ? AND user_id = ?', [name.trim(), shelfId, userId]);\n22\t  saveDb();\n23\t  return true;\n24\t}\n25\t"
+      },
+      {
+        "id": "toolu_01TExjU1Xq82LandRWVvr59a",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-bVzWwn/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t",
+        "result_tail": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t"
+      }
+    ],
+    "output": "## Findings\n\n**Critical — shelf-admin.ts:10**\n`deleteShelf` deletes a shelf using only `shelfId`, ignoring `userId` entirely. The docstring (lines 4-6) explicitly claims ownership is verified \"so users can never delete another user's shelf,\" and the inline comment at line 9 asserts the WHERE clause enforces ownership, but the query `DELETE FROM shelves WHERE id = ?` contains no ownership check. This is a broken access control / IDOR vulnerability: any authenticated user can delete any other user's shelf by supplying its `shelfId`. The `userId` parameter is accepted but unused.\n\nRecommended fix: match the pattern used in `renameShelf` — verify ownership before/while deleting, e.g. `DELETE FROM shelves WHERE id = ? AND user_id = ?` with params `[shelfId, userId]`, and update the misleading comment/docstring to reflect the actual enforcement, or add a check that deletion only proceeds when a row was affected (so callers can detect unauthorized attempts vs. not-found).\n\nNo other actionable findings — `renameShelf` correctly checks `user_id` in both the `SELECT` and `UPDATE` statements, consistent with safe ownership enforcement.",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.071539,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 10169,
+        "cache_read_input_tokens": 47347,
+        "output_tokens": 711,
+        "output_tokens_details": {
+          "thinking_tokens": 124
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10169,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 426,
+            "cache_read_input_tokens": 28234,
+            "cache_creation_input_tokens": 1048,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 1048
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 10,
+          "outputTokens": 1461,
+          "cacheReadInputTokens": 59640,
+          "cacheCreationInputTokens": 11891,
+          "webSearchRequests": 0,
+          "costUSD": 0.071539,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 133,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 17168,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+        "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+        "shelf-admin.ts": "eb3f4b640e8dcaba82cae3931303903bb510d23681494f305f503cf62a2de7d9"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+      "shelf-admin.ts": "eb3f4b640e8dcaba82cae3931303903bb510d23681494f305f503cf62a2de7d9",
+      ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

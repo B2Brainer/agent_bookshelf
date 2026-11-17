@@ -1,0 +1,74 @@
+{
+  "case_id": "CR-01",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.605Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "finding_reported",
+      "description": "D1 reported (file + line in range + keyword in the finding block).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 144,
+        "rank": 1,
+        "excerpt": "1. **Critical — `/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-qPfsBf/review-model.ts:20`**\n   Issue: `deleteReview` builds the SQL as `DELETE FROM reviews WHERE id = ? OR user_id = ?`. Because it uses `OR` instead of `AND`, calling this with a valid `userId` deletes *every* review own"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "finding_severity_at_least",
+      "description": "D1 severity is critical or high.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "D1": "critical (leading label)"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "finding_rank",
+      "description": "D1 is the first finding in the output.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "rank": 1,
+        "max_rank": 1
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 1157,
+    "output_words": 180,
+    "output_lines": 12,
+    "output_tokens_session": 2179,
+    "subagent_tool_calls": 7,
+    "duration_ms": 29076
+  }
+}

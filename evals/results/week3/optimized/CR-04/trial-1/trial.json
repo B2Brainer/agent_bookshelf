@@ -1,0 +1,308 @@
+{
+  "schema": 1,
+  "case_id": "CR-04",
+  "agent": "code-reviewer",
+  "config": "optimized",
+  "trial": 1,
+  "agent_definition": ".claude/agents/code-reviewer.md",
+  "agent_definition_sha256": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+  "dataset_sha256": "178d258cdb98160e58afbe5757b10bbcc10b83f2d5f3ed0b37873d665d6dd0d1",
+  "git_commit": "e7c5edff5dbb110218702737a00c9ea6c22ee986",
+  "git_dirty_evals_or_agents": true,
+  "settings": {
+    "model": "claude-sonnet-5",
+    "effort": "high",
+    "timeoutSec": 600,
+    "maxBudgetUsd": 2
+  },
+  "node_version": "v22.23.2",
+  "started_at": "2026-11-17T16:07:34.753Z",
+  "finished_at": "2026-11-17T16:08:17.902Z",
+  "status": "completed",
+  "errors": [],
+  "process": {
+    "exit_code": 0,
+    "signal": null,
+    "timed_out": false,
+    "spawn_error": null,
+    "duration_ms": 43101
+  },
+  "command": {
+    "bin": "claude",
+    "args": [
+      "-p",
+      "Use the code-reviewer subagent for the task below.\nPass the task text to it verbatim as its prompt, do not do any of the work yourself,\nand when it finishes reply with its final report unchanged.\n\nTask:\nReview shelf-model.ts. Database helpers are declared in db.ts.",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      "--forward-subagent-text",
+      "--no-session-persistence",
+      "--setting-sources",
+      "project",
+      "--strict-mcp-config",
+      "--permission-prompts",
+      "none",
+      "--allowedTools",
+      "Bash",
+      "--model",
+      "claude-sonnet-5",
+      "--effort",
+      "high",
+      "--max-budget-usd",
+      "2"
+    ],
+    "cwd_basename": "ws-UPl5d0",
+    "env_keys": [
+      "HOME",
+      "LANG",
+      "LOGNAME",
+      "PATH",
+      "PWD",
+      "SHELL",
+      "TERM",
+      "TMPDIR",
+      "USER"
+    ]
+  },
+  "claude_code_version": "2.1.277",
+  "model_requested": "claude-sonnet-5",
+  "models_reported": [
+    "claude-sonnet-5"
+  ],
+  "usage": {
+    "input_tokens": 78611,
+    "output_tokens": 3836,
+    "cost_usd": 0.10087,
+    "cost_status": "reported",
+    "subagent_total_tokens": 8038,
+    "scope": "session: orchestrator turns + subagent + session-title request"
+  },
+  "transcript": {
+    "file": "transcript.jsonl",
+    "stderr": "stderr.log",
+    "events": 33,
+    "unparsed_lines": 0
+  },
+  "output_file": "output.md",
+  "analysis": {
+    "init": {
+      "model": "claude-sonnet-5",
+      "agents": [
+        "claude",
+        "code-reviewer",
+        "Explore",
+        "general-purpose",
+        "Plan",
+        "statusline-setup"
+      ],
+      "tools": [
+        "Task",
+        "Bash",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "Read",
+        "RemoteTrigger",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "ShareOnboardingGuide",
+        "Skill",
+        "TaskStop",
+        "ToolSearch",
+        "WebFetch",
+        "WebSearch",
+        "Workflow",
+        "Write"
+      ],
+      "claude_code_version": "2.1.277",
+      "cwd": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-UPl5d0"
+    },
+    "dispatch": {
+      "id": "toolu_01ANddsCzHWcrcAD856KxdqW",
+      "subagent_type": "code-reviewer",
+      "prompt": "Review shelf-model.ts. Database helpers are declared in db.ts."
+    },
+    "dispatch_count": 1,
+    "orchestrator_tool_calls": [],
+    "subagent_status": "completed",
+    "subagent_usage": {
+      "total_tokens": 8038,
+      "tool_uses": 5,
+      "duration_ms": 32191
+    },
+    "tool_calls": [
+      {
+        "id": "toolu_012Xc9hwZmrJ19HM3DtvtHC1",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/shelf-model.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "shelf-model.ts",
+        "result_tail": "shelf-model.ts"
+      },
+      {
+        "id": "toolu_014w28vL16iREWfY6P1AyvV5",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "db.ts",
+        "result_tail": "db.ts"
+      },
+      {
+        "id": "toolu_01DN5AXKmPNzvy791wwsF4uH",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-UPl5d0/shelf-model.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\timport { all, get, run, saveDb } from './db.js';\n2\t\n3\texport interface Shelf {\n4\t  id: number;\n5\t  user_id: number;\n6\t  name: string;\n7\t  created_at: string;\n8\t}\n9\t\n10\tconst MAX_SHELF_NAME_LENGTH = 50;\n11\t\n12\texport function getShelvesByUser(userId: number): Shelf[] {\n13\t  return all('SELECT * FROM shelves WHERE user_id = ? ORDER BY name', [userId]) as unknown as Shelf[];\n14\t}\n15\t\n16\texport function getShelfById(id: number): Shelf | undefined {\n17\t  return get('SELECT * FROM shelves WHERE id = ?', [id]) as unknown as Shelf | undefined;\n18\t}\n19\t\n20\texport function createShelf(userId: number, name: string): Shelf {\n21\t  const trimmed = name.trim();\n22\t  if (trimmed.length === 0 || trimmed.length > MAX_SHELF_NAME_LENGTH) {\n23\t    throw new Error(`Shelf name must be between 1 and ${MAX_SHELF_NAME_LENGTH} characters`);\n24\t  }\n25\t\n26\t  const result = run('INSERT INTO shelves (user_id, name) VALUES (?, ?)', [userId, trimmed]);\n27\t  saveDb();\n28\t  return getShelfById(result.lastInsertRowid)!;\n29\t}\n30\t\n31\texport function deleteShelf(id: number, userId: number): boolean {\n32\t  const result = run('DELETE FROM shelves WHERE id = ? AND user_id = ?', [id, userId]);\n33\t  if (result.changes > 0) {\n34\t    saveDb();\n35\t  }\n36\t  return result.changes > 0;\n37\t}\n38\t",
+        "result_tail": "1\timport { all, get, run, saveDb } from './db.js';\n2\t\n3\texport interface Shelf {\n4\t  id: number;\n5\t  user_id: number;\n6\t  name: string;\n7\t  created_at: string;\n8\t}\n9\t\n10\tconst MAX_SHELF_NAME_LENGTH = 50;\n11\t\n12\texport function getShelvesByUser(userId: number): Shelf[] {\n13\t  return all('SELECT * FROM shelves WHERE user_id = ? ORDER BY name', [userId]) as unknown as Shelf[];\n14\t}\n15\t\n16\texport function getShelfById(id: number): Shelf | undefined {\n17\t  return get('SELECT * FROM shelves WHERE id = ?', [id]) as unknown as Shelf | undefined;\n18\t}\n19\t\n20\texport function createShelf(userId: number, name: string): Shelf {\n21\t  const trimmed = name.trim();\n22\t  if (trimmed.length === 0 || trimmed.length > MAX_SHELF_NAME_LENGTH) {\n23\t    throw new Error(`Shelf name must be between 1 and ${MAX_SHELF_NAME_LENGTH} characters`);\n24\t  }\n25\t\n26\t  const result = run('INSERT INTO shelves (user_id, name) VALUES (?, ?)', [userId, trimmed]);\n27\t  saveDb();\n28\t  return getShelfById(result.lastInsertRowid)!;\n29\t}\n30\t\n31\texport function deleteShelf(id: number, userId: number): boolean {\n32\t  const result = run('DELETE FROM shelves WHERE id = ? AND user_id = ?', [id, userId]);\n33\t  if (result.changes > 0) {\n34\t    saveDb();\n35\t  }\n36\t  return result.changes > 0;\n37\t}\n38\t"
+      },
+      {
+        "id": "toolu_013QJ1WfiQiH9GNaW9ZbaaTM",
+        "name": "Read",
+        "input": {
+          "file_path": "/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-UPl5d0/db.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t",
+        "result_tail": "1\t// Database helpers backed by sql.js.\n2\texport interface RunResult {\n3\t  changes: number;\n4\t  lastInsertRowid: number;\n5\t}\n6\t\n7\texport declare function get(sql: string, params?: unknown[]): Record<string, unknown> | undefined;\n8\texport declare function all(sql: string, params?: unknown[]): Record<string, unknown>[];\n9\texport declare function run(sql: string, params?: unknown[]): RunResult;\n10\texport declare function saveDb(): void;\n11\t"
+      },
+      {
+        "id": "toolu_011mCRnMF53pzJqQB1qszPvM",
+        "name": "Glob",
+        "input": {
+          "pattern": "**/*.ts"
+        },
+        "by": "subagent",
+        "executed": true,
+        "denied": false,
+        "is_error": null,
+        "result_excerpt": "shelf-model.ts\ndb.ts",
+        "result_tail": "shelf-model.ts\ndb.ts"
+      }
+    ],
+    "output": "No actionable findings beyond the following.\n\n**High** — `shelf-model.ts:16-18` — `getShelfById` queries `shelves` by `id` only, with no `user_id` scoping. It is exported and used internally after insert (line 28, safe), but as a public API on a per-user resource it provides no ownership check. If any caller outside this file uses `getShelfById` directly (e.g., for a \"get shelf\" or \"rename shelf\" route) instead of `getShelvesByUser`/`deleteShelf` (which do scope by `user_id`), it would allow one user to read another user's shelf by guessing/iterating IDs (IDOR). Recommend adding an optional `userId` parameter or a separate `getShelfByIdForUser(id, userId)` for any external-facing use, keeping the unscoped variant private/internal only.\n\n**Medium** — `shelf-model.ts:13,17` — Results are cast with `as unknown as Shelf[]` / `as unknown as Shelf | undefined`, which fully bypasses structural type checking against the `db.ts` signatures (`Record<string, unknown>[]`/`Record<string, unknown> | undefined`). If a column is renamed, missing, or has a different runtime type than declared in `Shelf` (e.g., `id` coming back as a string from sql.js), TypeScript will not catch it. Recommend a narrower validating mapper (even a simple runtime check/cast per field) instead of the double `unknown` cast, or at least a single `as Shelf[]` without funneling through `unknown` so some structural compatibility checking is retained.\n\n**Low** — `shelf-model.ts:20-29` — `createShelf` has no uniqueness check (in code or visible schema constraint) preventing a user from creating multiple shelves with the identical trimmed name, and no handling for a potential unique-constraint error from `run()` if such a constraint exists at the DB level. If duplicate names are not intended, add either a pre-check (`SELECT` for existing name) guarded by a DB unique constraint, or catch/translate the constraint violation into a clear domain error.\n\n**Low** — `shelf-model.ts:26-28` — `getShelfById(result.lastInsertRowid)!` uses a non-null assertion immediately after insert. This is fine in the normal path, but if `run()`'s `lastInsertRowid` semantics in `db.ts`'s sql.js-backed implementation ever return something unexpected (e.g., 0 on certain drivers/edge cases), this will throw a confusing \"undefined is not Shelf\" style failure at the `!` rather than a clear error. Consider an explicit check with a descriptive error message instead of the bare assertion.\n\nFiles reviewed:\n- /private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-UPl5d0/shelf-model.ts\n- /private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-UPl5d0/db.ts",
+    "output_source": "subagent_messages",
+    "result": {
+      "subtype": "success",
+      "is_error": false,
+      "terminal_reason": "completed",
+      "total_cost_usd": 0.10087,
+      "usage": {
+        "input_tokens": 4,
+        "cache_creation_input_tokens": 10686,
+        "cache_read_input_tokens": 47346,
+        "output_tokens": 1147,
+        "output_tokens_details": {
+          "thinking_tokens": 57
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10686,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 931,
+            "cache_read_input_tokens": 28233,
+            "cache_creation_input_tokens": 1566,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 1566
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard"
+      },
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 12,
+          "outputTokens": 3836,
+          "cacheReadInputTokens": 65235,
+          "cacheCreationInputTokens": 13364,
+          "webSearchRequests": 0,
+          "costUSD": 0.10087,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 1365,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "duration_ms": 41975,
+      "num_turns": 2,
+      "permission_denials": []
+    }
+  },
+  "observations": {
+    "workspace_snapshot": {
+      "files": {
+        ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59",
+        "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+        "shelf-model.ts": "1359f9005fd9d7bd3fa8ee7906d8e58b6a13d7492aaaaeacba17a04d1fac33d2"
+      },
+      "dirs": [
+        ".claude",
+        ".claude/agents"
+      ]
+    },
+    "expected_files": {
+      "db.ts": "969cfc3eb2292dc8b425c8fa258ee6e1a8781fdc2cdfbc25c442ef10165dcb05",
+      "shelf-model.ts": "1359f9005fd9d7bd3fa8ee7906d8e58b6a13d7492aaaaeacba17a04d1fac33d2",
+      ".claude/agents/code-reviewer.md": "0eda3c90ebbfd7da333f1226c2dedb3388b53f7b2f4e3b617ea9543b507e0c59"
+    },
+    "fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    },
+    "repo_before": {
+      "lines": [],
+      "hashes": {}
+    },
+    "repo_after": {
+      "lines": [],
+      "hashes": {}
+    },
+    "source_fixture_diff": {
+      "changed": [],
+      "missing": [],
+      "added": [],
+      "clean": true
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "case_id": "TR-02",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.634Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "status_is",
+      "description": "Status is FAILED.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "extracted": "FAILED",
+        "source": "Status line"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "output_matches",
+      "description": "Failing test identified.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "match": "averageRating rounds to one decimal"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "output_matches",
+      "description": "Failing file referenced.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "match": "format.test.js"
+      }
+    },
+    {
+      "id": "S4",
+      "type": "counts_equal",
+      "description": "Counts: 2 passed, 1 failed.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "pass": 2,
+        "fail": 1
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added (TR-09's .last-test-run marker counts as an added file).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    },
+    {
+      "id": "G-transcript_no_command",
+      "type": "transcript_no_command",
+      "description": "transcript_no_command: no install commands — `(?i)\\b(npm (i|install|ci|add)|npx|yarn( add| install)?|pnpm (i|install|add))\\b`.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "commands": []
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 730,
+    "output_words": 74,
+    "output_lines": 17,
+    "output_tokens_session": 1217,
+    "subagent_tool_calls": 4,
+    "duration_ms": 17709
+  }
+}

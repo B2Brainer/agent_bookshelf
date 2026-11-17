@@ -1,0 +1,22 @@
+{
+  "b3c1a8bbbdf5": {
+    "trial_dir": "baseline/CR-04/trial-1",
+    "criterion_id": "S2"
+  },
+  "6c6ea9cd273a": {
+    "trial_dir": "baseline/CR-10/trial-1",
+    "criterion_id": "S3"
+  },
+  "d0340500ff5b": {
+    "trial_dir": "baseline/TR-03/trial-1",
+    "criterion_id": "S1"
+  },
+  "1ae21837985d": {
+    "trial_dir": "baseline/TR-04/trial-1",
+    "criterion_id": "S1"
+  },
+  "9773e4e4caa5": {
+    "trial_dir": "optimized/CR-10/trial-1",
+    "criterion_id": "S3"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "case_id": "CR-08",
+  "config": "optimized",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.624Z",
+  "outcome": "PASS",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "fixture_unchanged",
+      "description": "Fixture unchanged (sha256 manifest match, no new files).",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "S2",
+      "type": "repo_clean",
+      "description": "Source repository has no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    },
+    {
+      "id": "S3",
+      "type": "finding_reported",
+      "description": "D1 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 304,
+        "rank": 1,
+        "excerpt": "1. **Critical** — `loan-utils.ts:15`: `isOverdue` has the comparison inverted relative to its documented behavior. The docstring states \"overdue when the current time is past its due date\" (i.e., `now > dueAt`), but the code returns `loan.dueAt.getTime() > now.getTime()`, which is true when `dueAt` "
+      }
+    },
+    {
+      "id": "S4",
+      "type": "output_not_matches",
+      "description": "No claim that a fix was applied.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "match": null
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 871,
+    "output_words": 120,
+    "output_lines": 8,
+    "output_tokens_session": 1488,
+    "subagent_tool_calls": 2,
+    "duration_ms": 19135
+  }
+}

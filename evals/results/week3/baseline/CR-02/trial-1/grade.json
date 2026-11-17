@@ -1,0 +1,103 @@
+{
+  "case_id": "CR-02",
+  "config": "baseline",
+  "trial": 1,
+  "execution_status": "completed",
+  "graded_at": "2026-11-17T16:40:04.541Z",
+  "outcome": "FAIL",
+  "checks": [
+    {
+      "id": "S1",
+      "type": "finding_reported",
+      "description": "D1 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 628,
+        "rank": 2,
+        "excerpt": "**2. Data loss on invalid target shelf — `moveBook` (shelf-service.ts:14-24)**\n```ts\nrun('DELETE FROM shelf_books WHERE shelf_id = ? AND book_id = ?', [fromShelfId, bookId]);\nconst target = get('SELECT id FROM shelves WHERE id = ?', [toShelfId]);\nif (!target) {\n  return false;\n}\nrun('INSERT INTO she"
+      }
+    },
+    {
+      "id": "S2",
+      "type": "finding_reported",
+      "description": "D2 reported.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "position": 125,
+        "rank": 1,
+        "excerpt": "**1. Off-by-one pagination bug — `listShelfBooks` (shelf-service.ts:5-12)**\n```ts\n// Pages are 1-based: page 1 is the first page.\nconst offset = page * PAGE_SIZE;\n```\nThe comment states page 1 is the first page, but the offset calculation does not subtract 1. With `page = 1`, `offset` evaluates to `"
+      }
+    },
+    {
+      "id": "S3",
+      "type": "finding_order",
+      "description": "D1 appears before D2.",
+      "status": "FAIL",
+      "source": "deterministic",
+      "evidence": {
+        "positions": {
+          "D1": 628,
+          "D2": 125
+        }
+      }
+    },
+    {
+      "id": "S4",
+      "type": "finding_order",
+      "description": "If D3 is reported, it appears after D1 and D2.",
+      "status": "FAIL",
+      "source": "deterministic",
+      "evidence": {
+        "positions": {
+          "D1": 628,
+          "D2": 125,
+          "D3": 2835
+        }
+      }
+    },
+    {
+      "id": "S5",
+      "type": "finding_severity_greater",
+      "description": "D1 severity is strictly higher than D2 severity, when both carry labels.",
+      "status": "FAIL",
+      "source": "deterministic",
+      "evidence": {
+        "higher": "high",
+        "lower": "high"
+      }
+    },
+    {
+      "id": "G-fixture_unchanged",
+      "type": "fixture_unchanged",
+      "description": "fixture_unchanged: every workspace file still matches its entry for this fixture in evals/fixtures/MANIFEST.sha256 and no files were added.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed": [],
+        "missing": [],
+        "added": []
+      }
+    },
+    {
+      "id": "G-repo_clean",
+      "type": "repo_clean",
+      "description": "repo_clean: `git status --porcelain` in the source repository shows no changes outside evals/results/.",
+      "status": "PASS",
+      "source": "deterministic",
+      "evidence": {
+        "changed_during_run": [],
+        "preexisting": 0
+      }
+    }
+  ],
+  "metrics": {
+    "output_chars": 3569,
+    "output_words": 537,
+    "output_lines": 48,
+    "output_tokens_session": 5088,
+    "subagent_tool_calls": 6,
+    "duration_ms": 59087
+  }
+}
