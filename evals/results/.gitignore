@@ -1,0 +1,5 @@
+# Generated per-trial artifacts stay local by default. Aggregated and graded results
+# (run.json, summary.json, trial.json, grade.json, output.md, judgments.json, adjudication/) remain committable.
+transcript.jsonl
+stderr.log
+*.tmp

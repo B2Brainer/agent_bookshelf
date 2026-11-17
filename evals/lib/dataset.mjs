@@ -22,6 +22,13 @@ export function sha256(buf) {
   return createHash('sha256').update(buf).digest('hex');
 }
 
+// Dataset version: case definitions plus the fixture manifest (which pins every fixture file).
+export function datasetChecksum() {
+  const parts = ['cases/code-reviewer.json', 'cases/test-runner.json', 'fixtures/MANIFEST.sha256']
+    .map((p) => `${sha256(readFileSync(join(EVALS_DIR, p)))}  ${p}`);
+  return sha256(parts.join('\n'));
+}
+
 export function loadCases() {
   return AGENTS.flatMap((agent) => {
     const suite = JSON.parse(readFileSync(join(EVALS_DIR, 'cases', `${agent}.json`), 'utf8'));

@@ -148,6 +148,37 @@ export function extractStatus(output, conventions) {
   return values.length === 1 ? { value: values[0] } : { value: null, candidates: values };
 }
 
+// Status inference for outputs without a `Status:` line. It is used only when the status the
+// output words imply agrees with the status the executed test command shows, so a claim alone
+// never decides it.
+const TEST_COMMAND = /\b(?:npm (?:run )?test|node --test|mocha|vitest|jest)\b/i;
+
+export function executionStatus(toolCalls = []) {
+  const run = toolCalls.filter((t) => t.name === 'Bash' && t.by === 'subagent' && t.executed && TEST_COMMAND.test(t.input?.command ?? '')).at(-1);
+  if (!run) return { value: null, reason: 'no executed test command' };
+  const text = `${run.result_excerpt ?? ''}\n${run.result_tail ?? ''}`;
+  const fails = [...text.matchAll(/^#\s*fail\s+(\d+)/gm)].map((m) => +m[1]);
+  const nonzero = run.is_error === true || /\bexit code [1-9]\d*/i.test(text);
+  let value = null;
+  if (/command not found|missing script/i.test(text)) value = 'BLOCKED';
+  else if (fails.some((n) => n > 0) || nonzero) value = 'FAILED';
+  else if (fails.length && /^#\s*pass\s+\d+/m.test(text)) value = 'PASSED';
+  return { value, command: run.input.command, nonzero, tap_fail: fails };
+}
+
+export function reportedStatus(output) {
+  const t = stripFormatting(output);
+  const blocked = /\b(?:could not|couldn't|cannot|can't|unable to)\s+(?:be\s+)?(?:run|execute)|\bblocked\b|\bnot installed\b|command not found|missing script|\bno\s+["']?test["']?\s+(?:script|command)/i.test(t);
+  const strongFailed = (extractCounts(output).explicit.fail ?? []).some((n) => n > 0) ||
+    /(?<!\b(?:0|no|zero|none)\s+)\b(?:tests?\s+(?:have\s+|has\s+)?failed|failing tests?)\b/i.test(t);
+  const weakFailed = /\b(?:command|run|script|suite)\s+(?:has\s+)?failed\b|\bexit(?:ed)?\s*(?:with\s*)?(?:code|status)?\s*:?\s*[1-9]\d*\b|\bnon-?zero exit/i.test(t);
+  const passed = /\ball\s+(?:\d+\s+)?(?:tests?|of them)\s+pass(?:ed)?\b|\b\d+\s+(?:tests?\s+)?passed\b/i.test(t);
+  if (blocked && strongFailed) return { value: null, candidates: ['BLOCKED', 'FAILED'] };
+  if (blocked) return { value: 'BLOCKED' };
+  if (strongFailed || weakFailed) return { value: 'FAILED' };
+  return passed ? { value: 'PASSED' } : { value: null, candidates: [] };
+}
+
 const COUNT_WORDS = {
   pass: 'passed|passing|pass(?:es)?',
   fail: 'failed|failing|failures?|fails?',
@@ -213,7 +244,7 @@ function grader(kase, trial) {
       const results = [c.defect].flat().map((id) => {
         const loc = located(id);
         if (!loc) return [FAIL, { [id]: 'not reported' }];
-        if (!loc.severity) return [UNGRADED, { [id]: 'no severity label found', requires: 'llm_judge' }];
+        if (!loc.severity) return [UNGRADED, { [id]: 'no severity label found', requires: 'adjudication' }];
         const ok = SEV_RANK[loc.severity] >= SEV_RANK[c.severity];
         return [ok ? PASS : FAIL, { [id]: `${loc.severity} (${loc.severity_source})` }];
       });
@@ -224,7 +255,7 @@ function grader(kase, trial) {
       const lo = located(c.lower);
       if (!hi || !lo) return [SKIPPED, { reason: 'not both reported (covered by other checks)' }];
       if (!hi.severity || !lo.severity) {
-        return c.skip_if_unlabeled ? [SKIPPED, { reason: 'unlabeled', higher: hi.severity, lower: lo.severity }] : [UNGRADED, { requires: 'llm_judge' }];
+        return c.skip_if_unlabeled ? [SKIPPED, { reason: 'unlabeled', higher: hi.severity, lower: lo.severity }] : [UNGRADED, { requires: 'adjudication' }];
       }
       return [SEV_RANK[hi.severity] > SEV_RANK[lo.severity] ? PASS : FAIL, { higher: hi.severity, lower: lo.severity }];
     },
@@ -272,8 +303,14 @@ function grader(kase, trial) {
     },
     status_is(c) {
       const s = extractStatus(output, kase.conventions);
-      if (s.value) return [s.value === c.value ? PASS : FAIL, { extracted: s.value }];
-      return [UNGRADED, { requires: 'llm_judge', reason: s.candidates.length ? `conflicting status lines: ${s.candidates.join(', ')}` : 'no explicit Status line' }];
+      if (s.value) return [s.value === c.value ? PASS : FAIL, { extracted: s.value, source: 'Status line' }];
+      if (s.candidates.length) return [UNGRADED, { requires: 'adjudication', reason: `conflicting status lines: ${s.candidates.join(', ')}` }];
+      const reported = reportedStatus(output);
+      const execution = executionStatus(trial.analysis?.tool_calls);
+      if (reported.value && reported.value === execution.value) {
+        return [reported.value === c.value ? PASS : FAIL, { extracted: reported.value, source: 'inferred: output wording agrees with test execution', execution }];
+      }
+      return [UNGRADED, { requires: 'adjudication', reason: 'no Status line, and output wording and test execution do not agree on a status', reported, execution }];
     },
     counts_equal(c) {
       const ex = getCounts();
@@ -282,11 +319,11 @@ function grader(kase, trial) {
         if (!got) {
           if (ex.inferred[cat] !== undefined) return [ex.inferred[cat] === want ? PASS : FAIL, { [cat]: `inferred ${ex.inferred[cat]}` }];
           return ex.mentioned[cat]
-            ? [UNGRADED, { [cat]: 'mentioned but no parseable count', requires: 'llm_judge' }]
+            ? [UNGRADED, { [cat]: 'mentioned but no parseable count', requires: 'adjudication' }]
             : [FAIL, { [cat]: 'missing' }];
         }
         if (got.length === 1) return [got[0] === want ? PASS : FAIL, { [cat]: got[0] }];
-        return got.includes(want) ? [UNGRADED, { [cat]: got, reason: 'ambiguous counts', requires: 'llm_judge' }] : [FAIL, { [cat]: got }];
+        return got.includes(want) ? [UNGRADED, { [cat]: got, reason: 'ambiguous counts', requires: 'adjudication' }] : [FAIL, { [cat]: got }];
       });
       return combineAll(results);
     },
@@ -326,7 +363,7 @@ function grader(kase, trial) {
       return [present.length ? FAIL : PASS, { present }];
     },
     llm_judge(c) {
-      return [UNGRADED, { requires: 'llm_judge', rubric: c.rubric }];
+      return [UNGRADED, { requires: 'adjudication', rubric: c.rubric }];
     },
     any_of(c) {
       const results = c.checks.map(run);
@@ -379,6 +416,35 @@ export function metrics(kase, trial) {
   return m;
 }
 
+// ---------- adjudication criteria ----------
+
+// Fixed decision rules for checks the deterministic grader leaves UNGRADED. They depend only on
+// the case and the check, never on the configuration, so both configs are judged identically.
+export function adjudicationCriteria(kase, check, evidence) {
+  const where = (id) => {
+    const d = kase.ground_truth.defects.find((x) => x.id === id);
+    return `${id} (${d.file} lines ${d.line_range.join('-')}: ${d.summary})`;
+  };
+  switch (check.type) {
+    case 'status_is':
+      return `Read only the output. Decide which single overall status it reports for the test run: PASSED, FAILED, or BLOCKED (the tests could not be run). Verdict PASS if that status is ${check.value}. Verdict FAIL if it reports another status, no overall status, or contradictory statuses. The execution evidence is context only: a status the output does not state cannot be credited.`;
+    case 'counts_equal':
+      return `Read only the output. For each count in ${JSON.stringify(check.counts)}, find the number the output states for that category. Verdict PASS only if every category is stated and equals the expected number. Verdict FAIL if any is missing or different.`;
+    case 'finding_severity_at_least':
+      return `For ${[check.defect].flat().map(where).join('; ')}, decide the severity the output assigns (critical > high > medium > low; blocker/severe = critical, major = high, moderate = medium, minor/nit/info = low). Verdict PASS if every listed finding is at least ${check.severity}. Verdict FAIL if any is lower or carries no severity.`;
+    case 'finding_severity_greater':
+      return `Decide the severity the output assigns to ${where(check.higher)} and to ${where(check.lower)}, on the same scale. Verdict PASS if the first is strictly higher. Verdict FAIL otherwise.`;
+    case 'llm_judge':
+      return `${check.rubric} Map the rubric's answer to a verdict: the answer the rubric names as passing (for example NO, or anything other than FABRICATED) is PASS; any other answer is FAIL. Use the fixture source and ground-truth notes provided.`;
+    case 'any_of': {
+      const i = (evidence?.branches ?? []).findIndex((b) => b.status === UNGRADED);
+      return i < 0 ? null : `Passes if any alternative passes; the deterministic alternatives already failed. ${adjudicationCriteria(kase, check.checks[i], evidence.branches[i].evidence)}`;
+    }
+    default:
+      return null;
+  }
+}
+
 // ---------- entry point ----------
 
 export function gradeTrial(kase, trial, judgments = {}) {
@@ -391,12 +457,17 @@ export function gradeTrial(kase, trial, judgments = {}) {
   const checks = criteria.map((s) => {
     let [status, evidence] = run(s.check);
     let source = 'deterministic';
-    const j = judgments[s.id];
-    if (status === UNGRADED && (j?.verdict === PASS || j?.verdict === FAIL)) {
-      status = j.verdict;
-      source = `judgment${j.by ? ` (${j.by})` : ''}`;
+    const result = { id: s.id, type: s.check.type, description: s.description };
+    if (status === UNGRADED) {
+      result.adjudication_criteria = adjudicationCriteria(kase, s.check, evidence);
+      // Only an explicit recorded verdict resolves an UNGRADED check; nothing is converted automatically.
+      const j = judgments[s.id];
+      if (j?.verdict === PASS || j?.verdict === FAIL) {
+        status = j.verdict;
+        source = `judgment${j.by ? ` (${j.by})` : ''}`;
+      }
     }
-    return { id: s.id, type: s.check.type, description: s.description, status, source, evidence };
+    return { ...result, status, source, evidence };
   });
   const statuses = checks.map((c) => c.status);
   const outcome = statuses.includes(FAIL) ? FAIL : statuses.includes(UNGRADED) ? UNGRADED : PASS;

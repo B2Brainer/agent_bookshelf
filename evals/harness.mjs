@@ -8,9 +8,10 @@ import { parseArgs } from 'node:util';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative, isAbsolute } from 'node:path';
-import { REPO_ROOT, EVALS_DIR, RESULTS_DIR, CONFIGS, AGENTS, loadCases, findCase } from './lib/dataset.mjs';
-import { DEFAULT_SETTINGS, claudeArgs, runTrial, writeJson } from './lib/run.mjs';
+import { REPO_ROOT, EVALS_DIR, RESULTS_DIR, CONFIGS, AGENTS, loadCases, findCase, datasetChecksum } from './lib/dataset.mjs';
+import { DEFAULT_SETTINGS, claudeArgs, runTrial, writeJson, cliVersion, gitRevision } from './lib/run.mjs';
 import { gradeTrial } from './lib/grade.mjs';
+import { createAdjudication, applyAdjudication } from './lib/adjudicate.mjs';
 
 const USAGE = `usage:
   node evals/harness.mjs validate
@@ -18,6 +19,7 @@ const USAGE = `usage:
                              [--trials N] [--run-id ID] [--model M] [--effort E] [--timeout SEC] [--max-budget-usd USD]
                              [--keep-workspace] --yes
   node evals/harness.mjs grade <run-id|dir>
+  node evals/harness.mjs adjudicate <run-id|dir> [--apply]
   node evals/harness.mjs summarize <run-id|dir>`;
 
 const read = (p) => JSON.parse(readFileSync(p, 'utf8'));
@@ -81,14 +83,19 @@ export async function cmdRun(opts) {
 
   const dir = join(RESULTS_DIR, runId);
   mkdirSync(dir, { recursive: true });
-  // Every configuration in a run must use identical settings.
+  // Every configuration in a run must use identical settings, dataset and CLI version.
   const runFile = join(dir, 'run.json');
+  const pinned = { settings, dataset_sha256: datasetChecksum(), claude_cli_version: cliVersion(bin) };
   if (existsSync(runFile)) {
     const prev = read(runFile);
-    if (JSON.stringify(prev.settings) !== JSON.stringify(settings)) {
-      throw new Error(`run ${runId} already uses settings ${JSON.stringify(prev.settings)}; use the same settings or a new --run-id`);
+    for (const [k, v] of Object.entries(pinned)) {
+      if (JSON.stringify(prev[k]) !== JSON.stringify(v)) {
+        throw new Error(`run ${runId} was recorded with ${k}=${JSON.stringify(prev[k])}, now ${JSON.stringify(v)}; use a new --run-id`);
+      }
     }
-  } else writeJson(runFile, { run_id: runId, created_at: new Date().toISOString(), settings, claude_bin: bin });
+  } else {
+    writeJson(runFile, { run_id: runId, created_at: new Date().toISOString(), ...pinned, ...gitRevision(), node_version: process.version, claude_bin: bin });
+  }
 
   let failures = 0;
   for (const kase of cases) {
@@ -150,13 +157,18 @@ export function summarize(dir) {
     const chars = items.map((i) => i.grade.metrics?.output_chars).filter((d) => typeof d === 'number');
     const outTok = items.map((i) => i.trial.usage?.output_tokens).filter((d) => typeof d === 'number');
     const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+    const graded = count('PASS') + count('FAIL');
+    const execErrors = items.filter((i) => i.trial.status !== 'completed').length;
     return {
       trials: n,
+      graded,
       pass: count('PASS'),
       fail: count('FAIL'),
       ungraded: count('UNGRADED'),
-      execution_errors: items.filter((i) => i.trial.status !== 'completed').length,
-      pass_rate: n ? count('PASS') / n : null,
+      ungraded_unresolved_checks: count('UNGRADED') - execErrors,
+      execution_errors: execErrors,
+      // UNGRADED trials are excluded from both numerator and denominator: neither pass nor fail.
+      pass_rate: graded ? count('PASS') / graded : null,
       cost_usd_total: costs.length ? costs.reduce((a, b) => a + b, 0) : null,
       cost_missing: n - costs.length,
       mean_duration_ms: mean(durations),
@@ -169,21 +181,44 @@ export function summarize(dir) {
     return { config, case_id, ...stats(items) };
   }).sort((a, b) => a.case_id.localeCompare(b.case_id) || a.config.localeCompare(b.config));
   const perConfig = CONFIGS.map((config) => {
+    const rows = perCase.filter((r) => r.config === config);
     const items = [...groups.entries()].filter(([k]) => k.startsWith(config + '\t')).flatMap(([, v]) => v);
-    return items.length ? { config, ...stats(items) } : null;
+    if (!items.length) return null;
+    return {
+      config,
+      cases: rows.length,
+      cases_fully_graded: rows.filter((r) => r.ungraded === 0).length,
+      cases_with_ungraded: rows.filter((r) => r.ungraded > 0).length,
+      ...stats(items),
+    };
   }).filter(Boolean);
-  const summary = { generated_at: new Date().toISOString(), per_case: perCase, per_config: perConfig };
+  const runFile = join(dir, 'run.json');
+  const summary = { generated_at: new Date().toISOString(), run: existsSync(runFile) ? read(runFile) : null, per_case: perCase, per_config: perConfig };
   writeJson(join(dir, 'summary.json'), summary);
 
   const fmt = (v, d = 0) => (v === null ? 'n/a' : typeof v === 'number' ? v.toFixed(d) : v);
   const cost = (r) => (r.cost_usd_total === null ? 'n/a' : `$${r.cost_usd_total.toFixed(4)}`) + (r.cost_missing ? ` (${r.cost_missing} missing)` : '');
-  const header = ['case', 'config', 'trials', 'PASS', 'FAIL', 'UNGRADED', 'exec-err', 'pass-rate', 'cost', 'mean-ms', 'mean-chars'];
-  const line = (r, label) => [label ?? r.case_id, r.config, r.trials, r.pass, r.fail, r.ungraded, r.execution_errors, r.pass_rate === null ? 'n/a' : `${Math.round(r.pass_rate * 100)}%`, cost(r), fmt(r.mean_duration_ms), fmt(r.mean_output_chars)];
+  const header = ['case', 'config', 'trials', 'graded', 'PASS', 'FAIL', 'UNGRADED', 'exec-err', 'pass-rate', 'cost', 'mean-ms', 'mean-chars'];
+  const line = (r, label) => [label ?? r.case_id, r.config, r.trials, r.graded, r.pass, r.fail, r.ungraded, r.execution_errors, r.pass_rate === null ? 'n/a' : `${Math.round(r.pass_rate * 100)}%`, cost(r), fmt(r.mean_duration_ms), fmt(r.mean_output_chars)];
   const table = [header, ...perCase.map((r) => line(r)), ...perConfig.map((r) => line(r, 'ALL'))];
   const widths = header.map((_, i) => Math.max(...table.map((row) => String(row[i]).length)));
   for (const row of table) console.log(row.map((c, i) => String(c).padEnd(widths[i])).join('  '));
-  console.log('\npass-rate = PASS / all trials (execution errors and UNGRADED count as not passed). Cost totals exclude trials with missing cost data.');
+  for (const r of perConfig) console.log(`${r.config}: ${r.cases_fully_graded} of ${r.cases} cases fully graded, ${r.cases_with_ungraded} with UNGRADED trials`);
+  console.log('\npass-rate = PASS / (PASS + FAIL). UNGRADED trials (unresolved checks or execution errors) count as neither and are reported separately.');
+  console.log('Cost and tokens are session-wide (orchestrator turns, subagent, session-title request). Cost totals exclude trials with missing cost data.');
   return summary;
+}
+
+export function cmdAdjudicate(dir, apply) {
+  if (apply) {
+    const r = applyAdjudication(dir);
+    console.log(`applied ${r.applied} verdicts; ${r.pending} still undecided; ${r.invalid} invalid (left UNGRADED)`);
+    cmdGrade(dir);
+    return r;
+  }
+  const r = createAdjudication(dir, trialDirs(dir));
+  console.log(r.items ? `wrote ${r.items} blinded items to ${relative(REPO_ROOT, r.dir)}/items.json (do not open key.json while adjudicating)` : 'nothing to adjudicate');
+  return r;
 }
 
 async function main(argv) {
@@ -204,6 +239,7 @@ async function main(argv) {
       'keep-workspace': { type: 'boolean' },
       'claude-bin': { type: 'string' }, // test hook: substitute executable
       yes: { type: 'boolean' },
+      apply: { type: 'boolean' },
       help: { type: 'boolean', short: 'h' },
     },
   });
@@ -215,6 +251,9 @@ async function main(argv) {
       return cmdRun(values);
     case 'grade':
       cmdGrade(runDir(arg));
+      return 0;
+    case 'adjudicate':
+      cmdAdjudicate(runDir(arg), values.apply);
       return 0;
     case 'summarize':
       summarize(runDir(arg));

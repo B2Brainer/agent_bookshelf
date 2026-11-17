@@ -7,10 +7,10 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync, chmodSync
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { findCase, manifestFor, snapshotDir, diffSnapshot, REPO_ROOT, RESULTS_DIR } from '../lib/dataset.mjs';
+import { findCase, manifestFor, snapshotDir, diffSnapshot, datasetChecksum, sha256, REPO_ROOT, RESULTS_DIR } from '../lib/dataset.mjs';
 import { analyzeTranscript, classifyExecution, usageSummary, findRepoReferences, runTrial, createWorkspace, removeWorkspace, trialEnv } from '../lib/run.mjs';
 import { gradeTrial, extractCounts, extractStatus, findingBlocks } from '../lib/grade.mjs';
-import { cmdRun, cmdGrade, summarize } from '../harness.mjs';
+import { cmdRun, cmdGrade, cmdAdjudicate, summarize } from '../harness.mjs';
 
 const FAKE = join(dirname(fileURLToPath(import.meta.url)), 'fake-claude.mjs');
 chmodSync(FAKE, 0o755);
@@ -160,7 +160,7 @@ describe('code-reviewer grading', () => {
     const low = { output: '1. Low - shelf-model.ts:25 - consider a named constant for the max length.' };
     const g = grade('CR-04', low);
     assert.equal(g.outcome, 'UNGRADED');
-    assert.equal(check(g, 'S2').evidence.branches[1].evidence.requires, 'llm_judge');
+    assert.equal(check(g, 'S2').evidence.branches[1].evidence.requires, 'adjudication');
     assert.equal(grade('CR-04', low, {}, { S2: { verdict: 'PASS', by: 'judge' } }).outcome, 'PASS');
     assert.equal(grade('CR-04', low, {}, { S2: { verdict: 'FAIL' } }).outcome, 'FAIL');
     assert.equal(grade('CR-04', { output: '1. High - shelf-model.ts:33 - deleteShelf may delete other users\' shelves.' }).outcome, 'FAIL');
@@ -228,13 +228,46 @@ describe('test-runner grading', () => {
     }
   });
 
-  test('status extraction tolerates markdown and emoji; baseline prose without Status line -> UNGRADED', () => {
+  test('status extraction tolerates markdown and emoji', () => {
     const tr02 = findCase('TR-02');
     assert.equal(extractStatus('**Status:** ❌ FAILED', tr02.conventions).value, 'FAILED');
     assert.equal(extractStatus('Test execution status: Failed', tr02.conventions).value, 'FAILED');
-    const g = grade('TR-02', { output: 'Ran npm test. 2 passed, 1 failed: averageRating rounds to one decimal place (format.test.js).', bash: NPM_TEST('fail 1', true) });
-    assert.equal(check(g, 'S1').status, 'UNGRADED');
-    assert.equal(g.outcome, 'UNGRADED');
+  });
+
+  test('no Status line: status inferred only when output wording and test execution agree', () => {
+    const tr02 = 'Ran npm test. 2 passed, 1 failed: averageRating rounds to one decimal place (format.test.js).';
+    const inferred = check(grade('TR-02', { output: tr02, bash: NPM_TEST('# pass 2\n# fail 1', true) }), 'S1');
+    assert.equal(inferred.status, 'PASS');
+    assert.match(inferred.evidence.source, /inferred/);
+    // Baseline wording for the other statuses, each backed by matching execution evidence.
+    const cases = [
+      ['TR-01', 'S2', 'Ran npm test. All 4 tests passed.', NPM_TEST('# pass 4\n# fail 0')],
+      ['TR-03', 'S1', 'The tests could not be run: mocha is not installed (exit code 127).', NPM_TEST('sh: mocha: command not found', true)],
+      ['TR-06', 'S1', 'npm test: 4 passed, 0 failed, but the command exited with code 1 (coverage threshold not met).', NPM_TEST('# pass 4\n# fail 0\nCoverage threshold not met', true)],
+    ];
+    for (const [id, cid, output, bash] of cases) assert.equal(check(grade(id, { output, bash }), cid).status, 'PASS', id);
+    // A success claim with no test run behind it is not credited.
+    const claimOnly = check(grade('TR-01', { output: 'All 4 tests passed.' }), 'S2');
+    assert.equal(claimOnly.status, 'UNGRADED');
+    assert.match(claimOnly.adjudication_criteria, /Verdict PASS if that status is PASSED/);
+    // Disagreement (claims success, execution shows a failure) stays UNGRADED rather than guessed.
+    const conflict = check(grade('TR-10', { output: 'All 3 tests passed.', bash: NPM_TEST('# pass 2\n# fail 1\nAll tests passed!') }), 'S1');
+    assert.equal(conflict.status, 'UNGRADED');
+    assert.equal(conflict.evidence.execution.value, 'FAILED');
+  });
+
+  test('adjudication criteria are fixed per check and identical for both configurations', () => {
+    const out = '1. Low - shelf-model.ts:25 - consider a named constant.';
+    for (const [id, cid] of [['CR-04', 'S2'], ['CR-10', 'S3']]) {
+      const output = id === 'CR-10' ? '1. Critical - shelf-admin.ts:9 - deleteShelf ignores userId; any user can delete any shelf.' : out;
+      const [b, o] = ['baseline', 'optimized'].map((config) => {
+        const { kase, trial } = trialFor(id, { output }, { config });
+        return check(gradeTrial(kase, trial), cid);
+      });
+      assert.equal(b.status, 'UNGRADED');
+      assert.ok(b.adjudication_criteria.length > 50);
+      assert.equal(b.adjudication_criteria, o.adjudication_criteria);
+    }
   });
 
   test('TR-03: BLOCKED without installing -> PASS; install attempt or node_modules -> FAIL', () => {
@@ -481,33 +514,68 @@ describe('CLI result recording and aggregation', () => {
     console.log = () => {};
     try {
       const scenario = (s) => ({ env: { FAKE_SCENARIO: JSON.stringify(s) } });
+      // baseline trial-2: no Status line and no TAP fail summary, so S2 stays UNGRADED until adjudicated.
+      const unclear = stream({ agent: tr01.agent, prompt: tr01.input.prompt, output: 'Ran npm test: 4 passed, 0 failed.', bash: NPM_TEST('# pass 4') });
       await cmdRun({ ...base, config: 'baseline', ...scenario({ events: ok }) });
+      await cmdRun({ ...base, config: 'baseline', ...scenario({ events: unclear }) });
       await cmdRun({ ...base, config: 'optimized', ...scenario({ events: noCost }) });
       await cmdRun({ ...base, config: 'optimized', ...scenario({ exitCode: 1 }) }); // trial-2: execution error
-      await assert.rejects(cmdRun({ ...base, config: 'optimized', model: 'other' }), /already uses settings/);
+      await assert.rejects(cmdRun({ ...base, config: 'optimized', model: 'other' }), /was recorded with settings/);
       // A trial interrupted mid-run leaves only the placeholder record.
       const stuck = join(runPath, 'optimized', 'TR-01', 'trial-3');
       mkdirSync(stuck, { recursive: true });
       writeFileSync(join(stuck, 'trial.json'), JSON.stringify({ case_id: 'TR-01', config: 'optimized', trial: 3, status: 'running' }));
 
       const grades = cmdGrade(runPath);
-      assert.equal(grades.length, 4);
-      const s = summarize(runPath);
-      const row = (config) => s.per_case.find((r) => r.config === config && r.case_id === 'TR-01');
-      assert.deepEqual(
-        { pass: row('baseline').pass, trials: row('baseline').trials, cost: row('baseline').cost_usd_total, missing: row('baseline').cost_missing },
-        { pass: 1, trials: 1, cost: 0.0123, missing: 0 },
-      );
-      const opt = row('optimized');
-      assert.deepEqual(
-        { trials: opt.trials, pass: opt.pass, fail: opt.fail, ungraded: opt.ungraded, errors: opt.execution_errors, rate: opt.pass_rate, cost: opt.cost_usd_total, missing: opt.cost_missing },
-        { trials: 3, pass: 0, fail: 1, ungraded: 2, errors: 2, rate: 0, cost: null, missing: 3 },
-      );
+      assert.equal(grades.length, 5);
+      let s = summarize(runPath);
+      const row = (summary, config) => summary.per_case.find((r) => r.config === config && r.case_id === 'TR-01');
+      // UNGRADED counts as neither pass nor fail: baseline is 1/1 graded, not 1/2.
+      const pick = (r) => ({ trials: r.trials, graded: r.graded, pass: r.pass, fail: r.fail, ungraded: r.ungraded, unresolved: r.ungraded_unresolved_checks, errors: r.execution_errors, rate: r.pass_rate, cost: r.cost_usd_total, missing: r.cost_missing });
+      assert.deepEqual(pick(row(s, 'baseline')), { trials: 2, graded: 1, pass: 1, fail: 0, ungraded: 1, unresolved: 1, errors: 0, rate: 1, cost: 0.0246, missing: 0 });
+      assert.deepEqual(pick(row(s, 'optimized')), { trials: 3, graded: 1, pass: 0, fail: 1, ungraded: 2, unresolved: 0, errors: 2, rate: 0, cost: null, missing: 3 });
+      assert.deepEqual(s.per_config.map((r) => [r.config, r.cases_fully_graded, r.cases_with_ungraded]), [['baseline', 0, 1], ['optimized', 0, 1]]);
+
+      // Blinded adjudication: items hide configuration and trial; verdicts apply only via the key.
+      cmdAdjudicate(runPath, false);
+      const batch = join(runPath, 'adjudication', 'batch-1');
+      const itemsText = readFileSync(join(batch, 'items.json'), 'utf8');
+      const items = JSON.parse(itemsText);
+      assert.deepEqual(items.map((i) => [i.case_id, i.criterion_id]), [['TR-01', 'S2']]);
+      assert.doesNotMatch(itemsText, /baseline|optimized|trial-\d|"config"/);
+      assert.match(items[0].decision_criteria, /Verdict PASS if that status is PASSED/);
+      assert.equal(items[0].context.executed_commands[0].command, 'cd /tmp/ws-x && npm test');
+      assert.equal(cmdAdjudicate(runPath, false).items, 0, 'pending items are not duplicated');
+      assert.equal(cmdAdjudicate(runPath, true).applied, 0, 'undecided items change nothing');
+      items[0].verdict = 'PASS';
+      items[0].by = 'reviewer-1';
+      writeFileSync(join(batch, 'items.json'), JSON.stringify(items));
+      assert.equal(cmdAdjudicate(runPath, true).applied, 1);
+      const judged = JSON.parse(readFileSync(join(runPath, 'baseline', 'TR-01', 'trial-2', 'grade.json'), 'utf8'));
+      assert.equal(judged.outcome, 'PASS');
+      assert.equal(check(judged, 'S2').source, 'judgment (reviewer-1)');
+      s = summarize(runPath);
+      assert.equal(row(s, 'baseline').graded, 2);
+
+      // Experimental metadata.
       const saved = JSON.parse(readFileSync(join(runPath, 'summary.json'), 'utf8'));
       assert.equal(saved.per_config.length, 2);
+      assert.equal(saved.run.dataset_sha256, datasetChecksum());
+      assert.equal(saved.run.claude_cli_version, null, 'fake CLI reports no version: recorded as missing');
+      assert.ok('git_commit' in saved.run && saved.run.node_version === process.version);
       const trial = JSON.parse(readFileSync(join(runPath, 'baseline', 'TR-01', 'trial-1', 'trial.json'), 'utf8'));
-      assert.equal(trial.settings.model, 'claude-sonnet-5');
       assert.equal(trial.status, 'completed');
+      assert.equal(trial.dataset_sha256, datasetChecksum());
+      assert.equal(trial.agent_definition_sha256, sha256(readFileSync(join(REPO_ROOT, tr01.configurations.baseline))));
+      assert.deepEqual([trial.case_id, trial.config, trial.trial], ['TR-01', 'baseline', 1]);
+      assert.equal(trial.model_requested, 'claude-sonnet-5');
+      assert.deepEqual(trial.models_reported, ['claude-sonnet-5']);
+      assert.equal(trial.claude_code_version, '2.1.277');
+      assert.equal(trial.node_version, process.version);
+      assert.ok(trial.started_at && trial.finished_at && typeof trial.process.duration_ms === 'number');
+      assert.deepEqual([trial.usage.cost_usd, trial.usage.cost_status, trial.usage.subagent_total_tokens], [0.0123, 'reported', 1234]);
+      const noCostTrial = JSON.parse(readFileSync(join(runPath, 'optimized', 'TR-01', 'trial-1', 'trial.json'), 'utf8'));
+      assert.deepEqual([noCostTrial.usage.cost_usd, noCostTrial.usage.cost_status], [null, 'missing']);
     } finally {
       console.log = log;
     }

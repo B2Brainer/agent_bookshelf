@@ -4,7 +4,7 @@ import { spawn, execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, cpSync, copyFileSync, readFileSync, writeFileSync, renameSync, rmSync, existsSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, relative, isAbsolute, basename } from 'node:path';
-import { REPO_ROOT, sha256, manifestFor, snapshotDir, diffSnapshot, agentDefinition } from './dataset.mjs';
+import { REPO_ROOT, sha256, manifestFor, snapshotDir, diffSnapshot, agentDefinition, datasetChecksum } from './dataset.mjs';
 
 // Identical for both configurations. Overridable per run, recorded in every trial.
 export const DEFAULT_SETTINGS = {
@@ -112,6 +112,26 @@ export function repoState() {
   return { lines, hashes };
 }
 
+export function gitRevision() {
+  try {
+    const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT, encoding: 'utf8' }).trim();
+    const dirty = execFileSync('git', ['status', '--porcelain', '--', 'evals', '.claude/agents'], { cwd: REPO_ROOT, encoding: 'utf8' }).trim() !== '';
+    return { git_commit: commit, git_dirty_evals_or_agents: dirty };
+  } catch {
+    return { git_commit: null, git_dirty_evals_or_agents: null };
+  }
+}
+
+// Version string of the CLI, or null if it cannot be determined.
+export function cliVersion(bin) {
+  try {
+    const out = execFileSync(bin, ['--version'], { encoding: 'utf8', timeout: 15000, env: trialEnv(tmpdir()), stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return out || null;
+  } catch {
+    return null;
+  }
+}
+
 // ---------- process execution ----------
 
 // The CLI and the agent's shell get an allowlisted environment, never the harness's own:
@@ -206,6 +226,7 @@ export function analyzeTranscript(events, agent) {
         denied: denied.has(t.id),
         is_error: r?.is_error ?? null,
         result_excerpt: r ? resultText(r.content).slice(0, 2000) : null,
+        result_tail: r ? resultText(r.content).slice(-2000) : null, // test summaries sit at the end of long output
       };
     });
 
@@ -326,7 +347,10 @@ export async function runTrial({ kase, config, trial, trialDir, settings, bin = 
     trial,
     agent_definition: kase.configurations[config],
     agent_definition_sha256: sha256(readFileSync(agentDefinition(kase, config))),
+    dataset_sha256: datasetChecksum(),
+    ...gitRevision(),
     settings,
+    node_version: process.version,
     started_at: new Date().toISOString(),
   };
   // Placeholder first: an interrupted run leaves status "running", which is never graded as a pass.
@@ -370,8 +394,13 @@ export async function runTrial({ kase, config, trial, trialDir, settings, bin = 
     process: { exit_code: proc.exitCode, signal: proc.signal, timed_out: proc.timedOut, spawn_error: proc.spawnError, duration_ms: proc.durationMs },
     command: { bin, args, cwd_basename: basename(ws), env_keys: Object.keys(childEnv).sort() }, // names only, never values
     claude_code_version: analysis.init?.claude_code_version ?? null,
-    node_version: process.version,
-    usage: usageSummary(analysis.result),
+    model_requested: settings.model,
+    models_reported: [...new Set([analysis.init?.model, ...Object.keys(analysis.result?.model_usage ?? {})].filter(Boolean))],
+    usage: {
+      ...usageSummary(analysis.result),
+      subagent_total_tokens: analysis.subagent_usage?.total_tokens ?? null,
+      scope: 'session: orchestrator turns + subagent + session-title request',
+    },
     transcript: { file: 'transcript.jsonl', stderr: 'stderr.log', events: events.length, unparsed_lines: unparsed },
     output_file: analysis.output !== null ? 'output.md' : null,
     analysis,
