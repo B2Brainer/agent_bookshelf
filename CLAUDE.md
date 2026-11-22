@@ -1,4 +1,43 @@
-# Development Guidelines (local, not committed)
+# Agent Bookshelf — project instructions
+
+Goodreads-lite teaching app: Express + TypeScript (ESM), SQLite via sql.js (WASM), EJS + HTMX views.
+
+## Commands
+
+- Install: `npm ci` (postinstall runs the TypeScript build)
+- Test (the verification gate): `npm run test:run` — Vitest, `tests/**/*.test.ts`
+- Single file: `npx vitest run tests/routes/search.test.ts`
+- Guardrail hook tests: `node --test ticket-to-merge/hooks/protect.test.mjs`
+- Plugin check: `claude plugin validate ./ticket-to-merge`
+- Dev server: `npm run dev` (port 3000)
+
+## Layout
+
+- `src/models/*.ts` — data access; use the `all` / `get` / `run` helpers from `src/db/index.ts`
+- `src/routes/api.ts` — JSON API under `/api`; `src/routes/books.ts` — HTML + HTMX fragments
+- `src/views/**.ejs` — templates; escape user data with `<%= %>`, never `<%- %>`
+- `tests/` — Vitest; each file inits its own temp DB in `/tmp` in `beforeEach` and closes it in `afterEach`
+- `ticket-to-merge/` — Claude Code plugin (skills, agents, hooks, evals) for the capstone
+- `SPEC.md` — current ticket (BOOK-101) with interface and verification path
+
+## Conventions
+
+- SQL is always parameterised: `?` placeholders + params array. Never interpolate request data into SQL.
+- JSON errors are `{ "error": "<message>" }` with 400 (validation), 404 (not found), 409 (conflict).
+- HTML fragment errors are `<p class="error">…</p>`.
+- Routes with fixed segments (e.g. `/books/search`) must be registered before `/:id` routes.
+- Imports use the `.js` extension (ESM + `moduleResolution: bundler`).
+- Tests: supertest against the exported `app` for routes; call model functions directly for models.
+  The seed data has 50 books ordered by title; `GET /api/books` is the reference for book shape and order.
+
+## Hard constraints
+
+- Never modify `bookshelf.db*`, `src/db/seed.sql` or `.env*` (enforced by `ticket-to-merge/hooks/protect.js`).
+- No schema changes (`src/db/schema.sql`), no new dependencies (`package.json` / lock file).
+- Acceptance tests are read-only once locked by the ship-ticket RED step.
+- Do not commit, push or create branches unless the user asks.
+
+# Development guidelines
 
 ## 1. Planning
 

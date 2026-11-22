@@ -1,0 +1,43 @@
+# claude plugin validate ./ticket-to-merge (CLI 2.1.277 (Claude Code))
+Validating plugin manifest: /Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/.claude-plugin/plugin.json
+
+✔ Validation passed
+
+# --strict --json
+{
+  "success": true,
+  "strict": true,
+  "target": "/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/.claude-plugin/plugin.json",
+  "manifest": {
+    "file": "/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/.claude-plugin/plugin.json",
+    "type": "plugin",
+    "errors": [],
+    "warnings": [],
+    "notes": []
+  },
+  "contents": []
+}
+
+# headless load check: claude -p ... --plugin-dir ./ticket-to-merge --output-format stream-json (init event)
+{
+  "claude_code_version": "2.1.277",
+  "plugins": [
+    {
+      "name": "ticket-to-merge",
+      "path": "/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge",
+      "source": "ticket-to-merge@inline",
+      "version": "1.0.0"
+    }
+  ],
+  "slash_commands": [
+    "ticket-to-merge:review-pr",
+    "ticket-to-merge:ship-ticket"
+  ],
+  "agents": [
+    "ticket-to-merge:implementer",
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier",
+    "ticket-to-merge:test-writer"
+  ]
+}

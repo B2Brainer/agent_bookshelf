@@ -1,0 +1,30 @@
+{
+  "description": "ticket-to-merge guardrails: protect bookshelf.db*, seed.sql, .env* and locked acceptance tests; gate Stop on a green suite during /ship-ticket.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/protect.js"],
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/tests-gate.mjs", "stop-check"],
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}

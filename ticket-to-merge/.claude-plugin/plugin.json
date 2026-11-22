@@ -1,0 +1,8 @@
+{
+  "name": "ticket-to-merge",
+  "version": "1.0.0",
+  "description": "Ship a ticket test-first with agents, then audit any branch with read-only reviewers that return verified JSON findings.",
+  "author": { "name": "Brainer Gutierrez" },
+  "license": "GPL-3.0",
+  "keywords": ["tdd", "code-review", "guardrails", "agents"]
+}

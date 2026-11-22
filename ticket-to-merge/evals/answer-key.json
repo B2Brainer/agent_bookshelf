@@ -1,0 +1,34 @@
+{
+  "base": "main",
+  "note": "Planted-bug ground truth. Never copied into eval workspaces or the plugin copy used for runs. Each bug is proven real by oracle.test.ts (fails on planted-a, passes on clean-b).",
+  "cases": {
+    "planted-a": {
+      "description": "Feature branch 'book stats': top-rated, pagination, sorted reviews, histogram, rating update, top-review fragment. 4 planted bugs + correct decoys.",
+      "bugs": [
+        {"id": "B1", "kind": "off-by-one", "severity": "high", "file": "src/models/stats.ts", "lines": [28, 35],
+         "summary": "getBooksPage documents 1-based pages but uses OFFSET page*pageSize, so page 1 skips the first page of books.",
+         "keywords": ["offset", "page", "off-by-one", "skip"]},
+        {"id": "B2", "kind": "sql-injection", "severity": "high", "file": "src/models/stats.ts", "lines": [38, 47], "alt": [{"file": "src/routes/api.ts", "lines": [33, 38]}],
+         "summary": "getReviewsSorted interpolates the raw ?sort= query string into ORDER BY.",
+         "keywords": ["inject", "order by", "sort", "interpolat"]},
+        {"id": "B3", "kind": "validation-logic", "severity": "medium", "file": "src/routes/api.ts", "lines": [197, 205],
+         "summary": "PUT /api/reviews/:id/rating checks (rating < 1 && rating > 5), which is never true; out-of-range ratings reach the DB and 500 instead of 400.",
+         "keywords": ["&&", "never", "rating", "range", "||"]},
+        {"id": "B4", "kind": "stored-xss", "severity": "high", "file": "src/routes/books.ts", "lines": [40, 53],
+         "summary": "GET /books/:id/top-review interpolates user display_name into HTML via res.send without escaping.",
+         "keywords": ["xss", "escap", "html", "display_name"]}
+      ],
+      "decoys": [
+        "BOOK_SORT_COLUMNS whitelist interpolated into ORDER BY (safe: own-property lookup with default)",
+        "getTopRatedBooks HAVING/LIMIT bound as parameters; limit clamped to 1..50",
+        "getRatingHistogram zero-fills 1..5",
+        "/books/page validation of page and pageSize",
+        "/books/top and /books/page registered before /books/:id"
+      ]
+    },
+    "clean-b": {
+      "description": "Same feature with every planted bug fixed and no top-review route. Every finding is a false positive unless proven otherwise.",
+      "bugs": []
+    }
+  }
+}
