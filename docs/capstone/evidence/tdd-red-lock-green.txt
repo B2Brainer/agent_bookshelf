@@ -1,0 +1,81 @@
+    113|     it('AC4: a lone "_" wildcard matches literally, not as single-char…
+    114|       const results = Book.searchBooks('_');
+    115|       expect(results).toEqual([]);
+       |                       ^
+    116|     });
+    117| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/26]⎯
+
+ FAIL  tests/models/search.test.ts > searchBooks > AC4: SQL is parameterised; wildcards match literally > AC4: source check - searchBooks binds the query via ? placeholders, not string interpolation
+AssertionError: expected 'export function searchBooks(query: st…' not to match /\$\{\s*query\s*\}/
+
+- Expected: 
+/\$\{\s*query\s*\}/
+
++ Received: 
+"export function searchBooks(query: string): Book[] {
+  const pattern = `%${query}%`;
+  return all(
+    'SELECT * FROM books WHERE title LIKE ? OR author LIKE ? ORDER BY title',
+    [pattern, pattern]
+  ) as unknown as Book[];
+}"
+
+ ❯ tests/models/search.test.ts:130:26
+    128|       expect(fnBody).toMatch(/\?/);
+    129|       // Must not interpolate the raw query value directly into the SQ…
+    130|       expect(fnBody).not.toMatch(/\$\{\s*query\s*\}/);
+       |                          ^
+    131|     });
+    132|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/26]⎯
+
+ Test Files  2 failed | 3 passed (5)
+      Tests  26 failed | 25 passed (51)
+   Start at  11:26:43
+   Duration  1.39s (transform 206ms, setup 0ms, collect 919ms, tests 1.59s, environment 1ms, prepare 659ms)
+152:  it('— HTMX route: q=dune returns 200 HTML containing book-grid/book-card markup and "Dune"', async () => {
+156:    expect(res.text).toContain('book-card');
+166:  it('— HTMX route: no matches renders an empty-state message', async () => {
+169:    expect(res.text).not.toContain('book-card');
+ ✓ tests/models/book.test.ts (4 tests) 181ms
+ ✓ tests/db.test.ts (4 tests) 186ms
+ ✓ tests/routes/api.test.ts (6 tests) 330ms
+ Test Files  2 failed | 3 passed (5)
+      Tests  26 failed | 25 passed (51)
+locked tests/models/search.test.ts sha256=0cbb91b5ab73b6bbae8cf7f7d9d5156e5a8775e43509fa946e4d09625e0d1251
+locked tests/routes/search.test.ts sha256=09522eaa1e32ef79eea63c980e1fd9717b4d69508bd6e1500316f68ee11e3fcf
+locked tests: 2 file(s), unchanged
+protected files: unchanged
+test command: npm run test:run -> PASS
+---constraints---
+---status---
+ M CLAUDE.md
+ M src/models/book.ts
+    <% books.forEach(book => { %>
+      <div class="book-card">
+        <h2><a href="/books/<%= book.id %>"><%= book.title %></a></h2>
+        <p class="author">by <%= book.author %></p>
+        <% if (book.published_year) { %>
+          <p class="year"><%= book.published_year %></p>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+locked tests: 2 file(s), unchanged
+protected files: unchanged
+test command: npm run test:run -> PASS
+--- constraints ---
+(empty above = ok)
+locked tests: 2 file(s), unchanged
+protected files: unchanged
+test command: npm run test:run -> PASS
+gate passed; disarmed
+=== diff --stat ===
+ src/models/book.ts  | 18 ++++++++++++++++--
+ src/routes/api.ts   | 18 ++++++++++++++++++
+ src/routes/books.ts | 25 +++++++++++++++----------
+ 3 files changed, 49 insertions(+), 12 deletions(-)

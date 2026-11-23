@@ -1,0 +1,448 @@
+diff --git a/src/models/book.ts b/src/models/book.ts
+index 95ac844..d76a19b 100644
+--- a/src/models/book.ts
++++ b/src/models/book.ts
+@@ -19,10 +19,28 @@ export function getBookById(id: number): Book | undefined {
+   return get('SELECT * FROM books WHERE id = ?', [id]) as unknown as Book | undefined;
+ }
+ 
++export class SearchValidationError extends Error {
++  constructor(message: string) {
++    super(message);
++    this.name = 'SearchValidationError';
++  }
++}
++
+ export function searchBooks(query: string): Book[] {
+-  const pattern = `%${query}%`;
++  const trimmed = query.trim();
++
++  if (trimmed.length > 100) {
++    throw new SearchValidationError('Search query must be 100 characters or fewer');
++  }
++
++  if (trimmed.length === 0) {
++    return getAllBooks();
++  }
++
++  const escaped = trimmed.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_');
++  const pattern = `%${escaped}%`;
+   return all(
+-    'SELECT * FROM books WHERE title LIKE ? OR author LIKE ? ORDER BY title',
++    "SELECT * FROM books WHERE title LIKE ? ESCAPE '\\' OR author LIKE ? ESCAPE '\\' ORDER BY title",
+     [pattern, pattern]
+   ) as unknown as Book[];
+ }
+diff --git a/src/routes/api.ts b/src/routes/api.ts
+index b542c2a..0ca5a8a 100644
+--- a/src/routes/api.ts
++++ b/src/routes/api.ts
+@@ -12,6 +12,24 @@ router.get('/books', (req: Request, res: Response) => {
+   res.json(books);
+ });
+ 
++router.get('/books/search', (req: Request, res: Response) => {
++  if (Array.isArray(req.query.q)) {
++    return res.status(400).json({ error: 'q must be provided only once' });
++  }
++
++  const q = (req.query.q as string | undefined) ?? '';
++
++  try {
++    const books = Book.searchBooks(q);
++    res.json(books);
++  } catch (err) {
++    if (err instanceof Book.SearchValidationError) {
++      return res.status(400).json({ error: err.message });
++    }
++    throw err;
++  }
++});
++
+ router.get('/books/:id', (req: Request, res: Response) => {
+   const bookId = parseInt(req.params.id as string, 10);
+   const book = Book.getBookById(bookId);
+diff --git a/src/routes/books.ts b/src/routes/books.ts
+index ce09f33..19b6897 100644
+--- a/src/routes/books.ts
++++ b/src/routes/books.ts
+@@ -10,16 +10,21 @@ router.get('/', (req: Request, res: Response) => {
+ });
+ 
+ router.get('/books/search', (req: Request, res: Response) => {
+-  const query = req.query.q as string;
+-
+-  // TODO: Implement search functionality
+-  // This is a deliberate homework gap - agents should implement the search backend
+-  // For now, return empty results with a message
+-  res.send(`
+-    <div class="search-message">
+-      <p>Search functionality coming soon! This is a homework exercise for agents to implement.</p>
+-    </div>
+-  `);
++  if (Array.isArray(req.query.q)) {
++    return res.status(400).send('<p class="error">q must be provided only once</p>');
++  }
++
++  const query = (req.query.q as string | undefined) ?? '';
++
++  try {
++    const books = Book.searchBooks(query);
++    res.render('books/search-results', { books });
++  } catch (err) {
++    if (err instanceof Book.SearchValidationError) {
++      return res.status(400).send(`<p class="error">${err.message}</p>`);
++    }
++    throw err;
++  }
+ });
+ 
+ router.get('/books/:id', (req: Request, res: Response) => {
+diff --git a/src/views/books/search-results.ejs b/src/views/books/search-results.ejs
+new file mode 100644
+index 0000000..5b87e0b
+--- /dev/null
++++ b/src/views/books/search-results.ejs
+@@ -0,0 +1,15 @@
++<% if (books.length === 0) { %>
++  <p class="empty-state">No books match your search.</p>
++<% } else { %>
++  <div class="book-grid">
++    <% books.forEach(book => { %>
++      <div class="book-card">
++        <h2><a href="/books/<%= book.id %>"><%= book.title %></a></h2>
++        <p class="author">by <%= book.author %></p>
++        <% if (book.published_year) { %>
++          <p class="year"><%= book.published_year %></p>
++        <% } %>
++      </div>
++    <% }) %>
++  </div>
++<% } %>
+diff --git a/tests/models/search.test.ts b/tests/models/search.test.ts
+new file mode 100644
+index 0000000..66b109a
+--- /dev/null
++++ b/tests/models/search.test.ts
+@@ -0,0 +1,144 @@
++import { describe, it, expect, beforeEach, afterEach } from 'vitest';
++import { readFileSync } from 'fs';
++import { initDb, closeDb } from '../../src/db/index.js';
++import * as Book from '../../src/models/book.js';
++
++beforeEach(async () => {
++  await initDb('/tmp/test-search-model.db');
++});
++
++afterEach(() => {
++  closeDb();
++  const fs = require('fs');
++  try {
++    fs.unlinkSync('/tmp/test-search-model.db');
++  } catch (e) {
++    // ignore
++  }
++});
++
++describe('searchBooks model', () => {
++  describe('AC1: matches title or author, partial and case-insensitive', () => {
++    it('matches a partial title substring', () => {
++      const results = Book.searchBooks('pragmatic');
++      expect(results.map((b) => b.title)).toContain('The Pragmatic Programmer');
++    });
++
++    it('matches a partial author substring regardless of case', () => {
++      const results = Book.searchBooks('KNUTH');
++      expect(results.map((b) => b.title)).toContain('The Art of Computer Programming');
++    });
++
++    it('matches mixed-case queries', () => {
++      const results = Book.searchBooks('PraGMatiC');
++      expect(results.map((b) => b.title)).toContain('The Pragmatic Programmer');
++    });
++
++    it('returns an empty array when there is no match', () => {
++      const results = Book.searchBooks('zzzznomatchzzzz');
++      expect(results).toEqual([]);
++    });
++  });
++
++  describe('AC2: empty query returns all books, ordered by title', () => {
++    it('returns all 50 books for an empty string query', () => {
++      const results = Book.searchBooks('');
++      expect(results).toHaveLength(50);
++      expect(results[0].title).toBe(Book.getAllBooks()[0].title);
++    });
++
++    it('returns all 50 books for a whitespace-only query', () => {
++      const results = Book.searchBooks('   ');
++      expect(results).toHaveLength(50);
++    });
++
++    it('returns results in the same order as getAllBooks', () => {
++      const results = Book.searchBooks('');
++      const all = Book.getAllBooks();
++      expect(results.map((b) => b.id)).toEqual(all.map((b) => b.id));
++    });
++  });
++
++  describe('AC3: input is trimmed; over 100 characters throws SearchValidationError', () => {
++    it('trims surrounding whitespace so "  dune  " behaves like "dune"', () => {
++      const trimmed = Book.searchBooks('dune');
++      const padded = Book.searchBooks('  dune  ');
++      expect(padded.map((b) => b.id)).toEqual(trimmed.map((b) => b.id));
++    });
++
++    it('accepts a query of exactly 100 characters', () => {
++      const query = 'a'.repeat(100);
++      expect(() => Book.searchBooks(query)).not.toThrow();
++    });
++
++    it('throws SearchValidationError for a query of 101 characters', () => {
++      const query = 'a'.repeat(101);
++      expect(() => Book.searchBooks(query)).toThrow(Book.SearchValidationError);
++    });
++
++    it('throws a SearchValidationError whose message mentions 100', () => {
++      const query = 'a'.repeat(101);
++      try {
++        Book.searchBooks(query);
++        throw new Error('expected searchBooks to throw');
++      } catch (err) {
++        expect(err).toBeInstanceOf(Book.SearchValidationError);
++        expect((err as Error).message).toMatch(/100/);
++      }
++    });
++
++    it('trims before checking length: 100 chars surrounded by spaces does not throw', () => {
++      const query = `  ${'a'.repeat(100)}  `;
++      expect(() => Book.searchBooks(query)).not.toThrow();
++    });
++  });
++
++  describe('AC4: SQL is parameterised and LIKE metacharacters are not interpreted', () => {
++    it('returns an empty array for a classic injection payload without throwing', () => {
++      expect(() => {
++        const results = Book.searchBooks("' OR 1=1 --");
++        expect(results).toEqual([]);
++      }).not.toThrow();
++    });
++
++    it('returns an empty array for a second injection payload without throwing', () => {
++      expect(() => {
++        const results = Book.searchBooks("%' OR '1'='1");
++        expect(results).toEqual([]);
++      }).not.toThrow();
++    });
++
++    it('treats a bare "%" wildcard as a literal character, not "match everything"', () => {
++      const results = Book.searchBooks('%');
++      expect(results.length).toBeLessThan(50);
++    });
++
++    it('treats "_" as a literal character, not "match any single character"', () => {
++      const results = Book.searchBooks('_');
++      expect(results).toEqual([]);
++    });
++
++    it('binds the query via ? placeholders rather than interpolating it into the SQL string', () => {
++      const source = readFileSync(
++        new URL('../../src/models/book.ts', import.meta.url),
++        'utf-8'
++      );
++      const searchFnMatch = source.match(
++        /export function searchBooks[\s\S]*?\n}/
++      );
++      expect(searchFnMatch).not.toBeNull();
++      const fnBody = searchFnMatch![0];
++
++      // Find the literal SQL string(s) passed as the first argument to the db
++      // helpers (all/get/run) inside searchBooks, and assert none of them
++      // interpolate a variable directly into the SQL text.
++      const sqlArgMatches = [...fnBody.matchAll(/\b(?:all|get|run)\(\s*(`[\s\S]*?`|'[^']*'|"[^"]*")/g)];
++      expect(sqlArgMatches.length).toBeGreaterThan(0);
++      for (const match of sqlArgMatches) {
++        const sqlLiteral = match[1];
++        expect(sqlLiteral).not.toMatch(/\$\{/);
++        expect(sqlLiteral).toMatch(/\?/);
++      }
++    });
++  });
++});
+diff --git a/tests/routes/search.test.ts b/tests/routes/search.test.ts
+new file mode 100644
+index 0000000..a06173d
+--- /dev/null
++++ b/tests/routes/search.test.ts
+@@ -0,0 +1,171 @@
++import { describe, it, expect, beforeEach, afterEach } from 'vitest';
++import request from 'supertest';
++import app from '../../src/server.js';
++import { initDb, closeDb } from '../../src/db/index.js';
++
++beforeEach(async () => {
++  await initDb('/tmp/test-search-routes.db');
++});
++
++afterEach(() => {
++  closeDb();
++  const fs = require('fs');
++  try {
++    fs.unlinkSync('/tmp/test-search-routes.db');
++  } catch (e) {
++    // ignore
++  }
++});
++
++describe('GET /api/books/search', () => {
++  describe('AC1: matches title or author, partial and case-insensitive', () => {
++    it('matches a partial title substring', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: 'pragmatic' });
++      expect(res.status).toBe(200);
++      expect(res.body.map((b: any) => b.title)).toContain('The Pragmatic Programmer');
++      expect(res.body[0]).toHaveProperty('id');
++      expect(res.body[0]).toHaveProperty('title');
++      expect(res.body[0]).toHaveProperty('author');
++      expect(res.body[0]).toHaveProperty('isbn');
++      expect(res.body[0]).toHaveProperty('cover_url');
++      expect(res.body[0]).toHaveProperty('description');
++      expect(res.body[0]).toHaveProperty('published_year');
++      expect(res.body[0]).toHaveProperty('created_at');
++    });
++
++    it('matches a partial author substring regardless of case', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: 'KNUTH' });
++      expect(res.status).toBe(200);
++      expect(res.body.map((b: any) => b.title)).toContain('The Art of Computer Programming');
++    });
++
++    it('returns an empty array for a no-match query', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: 'zzzznomatchzzzz' });
++      expect(res.status).toBe(200);
++      expect(res.body).toEqual([]);
++    });
++  });
++
++  describe('AC2: empty/missing query returns all books in the same order as GET /api/books', () => {
++    it('returns all 50 books when q is missing', async () => {
++      const reference = await request(app).get('/api/books');
++      const res = await request(app).get('/api/books/search');
++      expect(res.status).toBe(200);
++      expect(res.body).toHaveLength(50);
++      expect(res.body.map((b: any) => b.id)).toEqual(reference.body.map((b: any) => b.id));
++    });
++
++    it('returns all 50 books when q is an empty string', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: '' });
++      expect(res.status).toBe(200);
++      expect(res.body).toHaveLength(50);
++    });
++
++    it('returns all 50 books when q is whitespace only', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: '   ' });
++      expect(res.status).toBe(200);
++      expect(res.body).toHaveLength(50);
++    });
++  });
++
++  describe('AC3: input is trimmed; over 100 characters returns 400', () => {
++    it('treats "  dune  " the same as "dune"', async () => {
++      const trimmed = await request(app).get('/api/books/search').query({ q: 'dune' });
++      const padded = await request(app).get('/api/books/search').query({ q: '  dune  ' });
++      expect(padded.status).toBe(200);
++      expect(padded.body.map((b: any) => b.id)).toEqual(trimmed.body.map((b: any) => b.id));
++    });
++
++    it('accepts exactly 100 characters with 200', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: 'a'.repeat(100) });
++      expect(res.status).toBe(200);
++    });
++
++    it('rejects 101 characters with 400 and an error mentioning 100', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: 'a'.repeat(101) });
++      expect(res.status).toBe(400);
++      expect(res.body).toHaveProperty('error');
++      expect(res.body.error).toMatch(/100/);
++    });
++
++    it('trims before the length check: 100 chars with surrounding spaces returns 200', async () => {
++      const res = await request(app)
++        .get('/api/books/search')
++        .query({ q: `  ${'a'.repeat(100)}  ` });
++      expect(res.status).toBe(200);
++    });
++  });
++
++  describe('AC4: parameterised search handles hostile/wildcard input safely', () => {
++    it('returns [] for a classic SQL injection payload without erroring', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: "' OR 1=1 --" });
++      expect(res.status).toBe(200);
++      expect(res.body).toEqual([]);
++    });
++
++    it('returns [] for a second SQL injection payload without erroring', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: "%' OR '1'='1" });
++      expect(res.status).toBe(200);
++      expect(res.body).toEqual([]);
++    });
++
++    it('treats a bare "%" as a literal character, not "match everything"', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: '%' });
++      expect(res.status).toBe(200);
++      expect(res.body.length).toBeLessThan(50);
++    });
++
++    it('treats "_" as a literal character, not "match any single character"', async () => {
++      const res = await request(app).get('/api/books/search').query({ q: '_' });
++      expect(res.status).toBe(200);
++      expect(res.body).toEqual([]);
++    });
++  });
++
++  describe('q given more than once', () => {
++    it('returns 400 when q is repeated (?q=a&q=b)', async () => {
++      const res = await request(app).get('/api/books/search?q=a&q=b');
++      expect(res.status).toBe(400);
++      expect(res.body).toHaveProperty('error');
++    });
++  });
++
++  it('is registered before GET /api/books/:id so "search" is not parsed as an id', async () => {
++    const res = await request(app).get('/api/books/search');
++    expect(res.status).not.toBe(404);
++  });
++});
++
++describe('GET /books/search (HTMX fragment)', () => {
++  it('returns 200 HTML containing a matching book title for a partial match', async () => {
++    const res = await request(app).get('/books/search').query({ q: 'dune' });
++    expect(res.status).toBe(200);
++    expect(res.text).toContain('Dune');
++  });
++
++  it('uses the same book-grid / book-card markup as the index view', async () => {
++    const res = await request(app).get('/books/search').query({ q: 'dune' });
++    expect(res.status).toBe(200);
++    expect(res.text).toContain('book-grid');
++    expect(res.text).toContain('book-card');
++  });
++
++  it('renders an empty-state message when there are no matches', async () => {
++    const res = await request(app).get('/books/search').query({ q: 'zzzznomatchzzzz' });
++    expect(res.status).toBe(200);
++    expect(res.text).not.toContain('book-card');
++    expect(res.text.toLowerCase()).toMatch(/no (books|results|matches)/);
++  });
++
++  it('returns all books as HTML when q is missing', async () => {
++    const res = await request(app).get('/books/search');
++    expect(res.status).toBe(200);
++    expect(res.text).toContain('book-grid');
++  });
++
++  it('returns 400 with an error fragment for a query over 100 characters', async () => {
++    const res = await request(app).get('/books/search').query({ q: 'a'.repeat(101) });
++    expect(res.status).toBe(400);
++    expect(res.text).toContain('class="error"');
++  });
++});

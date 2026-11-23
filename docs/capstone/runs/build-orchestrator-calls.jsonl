@@ -1,0 +1,28 @@
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/SPEC.md"}
+{"name":"Bash","d":"git status --short && echo \"---BASE---\" && git rev-parse HEAD"}
+{"name":"Bash","d":"node \"/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/scripts/tests-gate.mjs\" start --test-cmd \"npm run test:run\""}
+{"name":"Bash","d":"ls -R tests src/routes src/models src/views 2>/dev/null | head -60"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/src/models/book.ts"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/src/routes/api.ts"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/src/routes/books.ts"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/src/views/books/index.ejs"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/tests/models/book.test.ts"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/tests/routes/api.test.ts"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/tests/setup.ts"}
+{"name":"Agent","d":"ticket-to-merge:test-writer"}
+{"name":"Bash","d":"npm run test:run 2>&1 | tail -40"}
+{"name":"Bash","d":"grep -n \"empty-state\\|empty state\\|no matches\\|book-card\" tests/routes/search.test.ts"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/tests/models/search.test.ts"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/tests/routes/search.test.ts"}
+{"name":"Agent","d":"ticket-to-merge:test-writer"}
+{"name":"Bash","d":"npm run test:run 2>&1 | grep -E \"Test Files|Tests  |✓ tests|× tests\" | head -20"}
+{"name":"Bash","d":"node \"/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/scripts/tests-gate.mjs\" lock tests/models/search.test.ts tests/routes/search.test.ts"}
+{"name":"Agent","d":"ticket-to-merge:implementer"}
+{"name":"Bash","d":"node \"/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/scripts/tests-gate.mjs\" check 2>&1 | tail -20"}
+{"name":"Bash","d":"echo \"---constraints---\"; git diff --stat a6468fa5644321c2137750432f40895c3b16543e -- package.json package-lock.json src/db/schema.sql; echo \"---status---\"; git"}
+{"name":"Read","d":"/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/skills/review-pr/SKILL.md"}
+{"name":"Bash","d":"git diff a6468fa5644321c2137750432f40895c3b16543e -- src/models/book.ts src/routes/api.ts src/routes/books.ts && echo \"=== search-results.ejs ===\" && cat src/vi"}
+{"name":"Agent","d":"ticket-to-merge:review-correctness"}
+{"name":"Agent","d":"ticket-to-merge:review-security"}
+{"name":"Bash","d":"node \"/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/scripts/tests-gate.mjs\" check 2>&1 | tail -5; echo \"--- constraints ---\"; git diff -"}
+{"name":"Bash","d":"node \"/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/scripts/tests-gate.mjs\" finish 2>&1 | tail -20; echo \"=== diff --stat ===\"; git diff"}

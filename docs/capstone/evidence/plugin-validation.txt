@@ -1,4 +1,4 @@
-# claude plugin validate ./ticket-to-merge (CLI 2.1.277 (Claude Code))
+# claude plugin validate ./ticket-to-merge (CLI 2.1.277 (Claude Code)) — final plugin
 Validating plugin manifest: /Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge/.claude-plugin/plugin.json
 
 ✔ Validation passed
@@ -18,15 +18,14 @@ Validating plugin manifest: /Users/brainer/Documents/repositories/agent_bookshel
   "contents": []
 }
 
-# headless load check: claude -p ... --plugin-dir ./ticket-to-merge --output-format stream-json (init event)
+# headless load check (init event of: claude -p ... --plugin-dir ./ticket-to-merge --output-format stream-json)
 {
   "claude_code_version": "2.1.277",
   "plugins": [
     {
       "name": "ticket-to-merge",
-      "path": "/Users/brainer/Documents/repositories/agent_bookshelf/ticket-to-merge",
-      "source": "ticket-to-merge@inline",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "source": "ticket-to-merge@inline"
     }
   ],
   "slash_commands": [

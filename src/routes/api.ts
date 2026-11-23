@@ -12,6 +12,24 @@ router.get('/books', (req: Request, res: Response) => {
   res.json(books);
 });
 
+router.get('/books/search', (req: Request, res: Response) => {
+  const q = req.query.q;
+
+  if (Array.isArray(q)) {
+    return res.status(400).json({ error: 'Only one q parameter is allowed' });
+  }
+
+  try {
+    const books = Book.searchBooks((q as string | undefined) ?? '');
+    res.json(books);
+  } catch (err) {
+    if (err instanceof Book.SearchValidationError) {
+      return res.status(400).json({ error: err.message });
+    }
+    throw err;
+  }
+});
+
 router.get('/books/:id', (req: Request, res: Response) => {
   const bookId = parseInt(req.params.id as string, 10);
   const book = Book.getBookById(bookId);
