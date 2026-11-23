@@ -1,0 +1,38 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 34,
+      "severity": "high",
+      "issue": "GET /books/:id/reviews does not validate that the parsed bookId is a number before using it in a SQL query, unlike the sibling /books/:id/histogram route which checks Book.getBookById first and returns 404.",
+      "evidence": "const bookId = parseInt(req.params.id as string, 10); ... res.json(Stats.getReviewsSorted(bookId, sort)); with getReviewsSorted binding bookId directly as a '?' parameter in src/models/stats.ts (WHERE r.book_id = ?). A request like GET /books/abc/reviews produces bookId = NaN, which sql.js's prepared statement bind will reject, causing an uncaught exception and a 500 response instead of a 404/400."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.2870546,
+  "duration_ms": 55731,
+  "num_turns": 5,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 28,
+      "outputTokens": 6631,
+      "cacheReadInputTokens": 274578,
+      "cacheCreationInputTokens": 53342,
+      "webSearchRequests": 0,
+      "costUSD": 0.2870546,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 2204,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

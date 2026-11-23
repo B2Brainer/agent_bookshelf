@@ -1,0 +1,3 @@
+/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T//ws-0fpMid/plugin/ticket-to-merge/agents/review-correctness.md:model: sonnet
+/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T//ws-0fpMid/plugin/ticket-to-merge/agents/review-security.md:model: sonnet
+/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T//ws-0fpMid/plugin/ticket-to-merge/agents/review-verifier.md:model: sonnet

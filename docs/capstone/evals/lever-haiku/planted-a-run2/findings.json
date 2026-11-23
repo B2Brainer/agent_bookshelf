@@ -1,0 +1,73 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating range check uses && instead of ||, so it never rejects out-of-range values",
+      "evidence": "if (!Number.isInteger(rating) || (rating < 1 && rating > 5)) — rating can't be <1 AND >5 simultaneously, so any integer (0, -5, 100) passes and is persisted via Review.updateReview on PUT /reviews/:id/rating"
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 46,
+      "severity": "high",
+      "issue": "SQL injection via unsanitized sort parameter interpolated into ORDER BY clause",
+      "evidence": "ORDER BY ${sort} in getReviewsSorted; api.ts passes (req.query.sort as string) || 'r.created_at DESC' directly from GET /books/:id/reviews?sort=... with no allowlist (contrast with getBooksPage's BOOK_SORT_COLUMNS allowlist)"
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 50,
+      "severity": "high",
+      "issue": "Stored XSS: top.display_name interpolated unescaped into HTML response",
+      "evidence": "res.send(`<div class=\"top-review\"><strong>${top.display_name}</strong> rated it ${top.rating}/5</div>`) on GET /books/:id/top-review; display_name originates from user-controlled displayName field and is never escaped, unlike sibling routes using res.render"
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 34,
+      "severity": "medium",
+      "issue": "Pagination offset off-by-one: page 1 skips the first pageSize rows",
+      "evidence": "OFFSET computed as page * pageSize; function's own comment says \"page starts at 1\" but with page=1 offset=pageSize, so GET /books/page?page=1 returns the second page of results, never the first"
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.5556952000000001,
+  "duration_ms": 163962,
+  "num_turns": 13,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 28,
+      "outputTokens": 9564,
+      "cacheReadInputTokens": 669615,
+      "cacheCreationInputTokens": 44697,
+      "webSearchRequests": 0,
+      "costUSD": 0.39138950000000006,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 187,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 52,
+      "outputTokens": 20553,
+      "cacheReadInputTokens": 40437,
+      "cacheCreationInputTokens": 45956,
+      "webSearchRequests": 0,
+      "costUSD": 0.1643057,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 17888,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

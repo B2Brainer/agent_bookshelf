@@ -1,0 +1,73 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/models/stats.ts",
+      "line": 46,
+      "severity": "high",
+      "issue": "SQL injection via unsanitized `sort` query param interpolated directly into ORDER BY clause in getReviewsSorted.",
+      "evidence": "`ORDER BY ${sort}` at stats.ts:46; api.ts:36 passes req.query.sort through with no allowlist, e.g. GET /api/books/1/reviews?sort=1;DROP TABLE users;--"
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating bounds check uses `&&` instead of `||`, so the out-of-range branch can never be true — invalid ratings (e.g. 0 or 6) bypass validation.",
+      "evidence": "if (!Number.isInteger(rating) || (rating < 1 && rating > 5)) { ... } — 0 < 1 is true but 0 > 5 is false, so && is false and validation passes."
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 34,
+      "severity": "high",
+      "issue": "Pagination off-by-one: OFFSET computed as page*pageSize while the function is documented as page starting at 1, so page=1 skips the first pageSize rows.",
+      "evidence": "// `page` starts at 1. ... [pageSize, page * pageSize] — for page=1, pageSize=10, OFFSET is 10 instead of 0."
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 48,
+      "severity": "medium",
+      "issue": "Stored XSS: top.display_name (user-controlled) is interpolated unescaped into an HTML response via res.send template literal.",
+      "evidence": "res.send(`<div class=\"top-review\"><strong>${top.display_name}</strong> rated it ${top.rating}/5</div>`) — a display_name of `<script>alert(1)</script>` is reflected verbatim."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.5813922,
+  "duration_ms": 39273,
+  "num_turns": 2,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 34,
+      "outputTokens": 10350,
+      "cacheReadInputTokens": 867930,
+      "cacheCreationInputTokens": 47031,
+      "webSearchRequests": 0,
+      "costUSD": 0.4477730000000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 1186,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 68,
+      "outputTokens": 14771,
+      "cacheReadInputTokens": 68612,
+      "cacheCreationInputTokens": 42268,
+      "webSearchRequests": 0,
+      "costUSD": 0.1336192,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 11408,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

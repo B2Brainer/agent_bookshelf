@@ -2,7 +2,7 @@
 name: review-pr
 description: Review the current branch (or a given base..head range) with read-only specialist reviewers, verify every finding adversarially, and return JSON findings with file, line, severity, issue and evidence. Use to review a PR, a branch, or uncommitted changes.
 argument-hint: "[base-ref] [-- pathspec...] (default base: merge-base with origin/main, main, origin/master or master)"
-allowed-tools: Bash(git *), Read, Grep, Glob, Agent
+allowed-tools: Bash(git *), Bash(node *collect-diff.mjs*), Read, Grep, Glob, Agent
 ---
 
 # /ticket-to-merge:review-pr
@@ -12,33 +12,30 @@ You (the orchestrator) collect the diff; the reviewers are read-only subagents. 
 
 Arguments: `$ARGUMENTS`
 
-## 1. Resolve the diff
+## 1. Collect the change set (one command)
 
-Run these with Bash (read-only git only):
+Run exactly one Bash command (arguments: optional base ref, optionally `--` and a pathspec):
 
-0. Arguments: an optional base ref, optionally followed by `--` and a pathspec that limits the review to
-   those paths (used by /ticket-to-merge:ship-ticket to exclude pre-existing changes). Append the pathspec to
-   every git command below and keep only untracked files that match it.
-1. Base ref: if the arguments name a ref, use it. Otherwise use the first that exists of
-   `origin/main`, `main`, `origin/master`, `master` (`git rev-parse --verify --quiet <ref>`).
-2. `BASE=$(git merge-base <base-ref> HEAD)`. If `BASE` equals `HEAD` and the base ref is a different
-   commit, the branch is behind the base: use `BASE=<base-ref>` instead.
-3. Collect the change set: committed + uncommitted changes against `BASE`:
-   - `git diff --stat $BASE` and `git diff --unified=5 $BASE -- . ':(exclude)package-lock.json'`
-   - untracked files: `git ls-files --others --exclude-standard` (treat each as a fully added file).
-4. If there are no changes, output `{"base": "<sha>", "head": "<sha>", "findings": []}` with the note
-   "no changes to review" and stop.
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/collect-diff.mjs" $ARGUMENTS`
 
-Exclude from review: lock files, generated/build output (`dist/`), binary files, and vendored code.
+It resolves the base (given ref, else the first of `origin/main`, `main`, `origin/master`, `master`;
+merge-base with HEAD), writes the full diff of committed + uncommitted + untracked changes (lock files and
+`dist/` excluded) to `diffPath`, and prints JSON `{baseRef, base, head, diffPath, files, diffLines}`.
+Do not run other git commands and do not Read the diff yourself; the reviewers read it.
+If `files` is empty, output `{"base": "<base>", "head": "<head>", "findings": []}` with the note
+"no changes to review" and stop. If the script is unavailable, fall back to `git merge-base`, `git diff` and
+`git ls-files --others --exclude-standard` and write nothing.
+
 Keep tests in scope (a wrong test is a defect), but do not report "missing tests".
 
 ## 2. Specialist review (parallel, read-only)
 
 Dispatch both reviewers in ONE message so they run in parallel, in the foreground (do not set
-`run_in_background`; wait for both results instead of polling or scheduling wakeups). Give each the same brief:
-the base and head SHAs, the list of changed files, the full diff text (and the list of untracked files,
-which they should Read in full), plus any spec in the repo that defines the intended behaviour
-(e.g. `SPEC.md`, the README section for the feature) if one exists.
+`run_in_background`; wait for both results instead of polling or scheduling wakeups). Keep the brief short
+and identical for both; do NOT paste the diff into the prompt:
+"Review the change set base <base> → head <head> (working tree). Read the unified diff at <diffPath> first,
+then Read the changed files as needed. Changed files: <files>. Spec, if any: <SPEC.md or README section path>.
+Return only your JSON."
 
 - `ticket-to-merge:review-correctness`: logic, contracts, edge cases, data integrity
 - `ticket-to-merge:review-security`: injection, input validation, unsafe handling, data exposure
@@ -50,7 +47,8 @@ extract the findings it describes; do not re-run it.
 
 1. Merge both lists. Drop exact duplicates (same file, lines within 3, same root cause).
 2. If the merged list is empty, skip verification.
-3. Otherwise dispatch `ticket-to-merge:review-verifier` once, in the foreground, with the merged candidates and the same diff.
+3. Otherwise dispatch `ticket-to-merge:review-verifier` once, in the foreground, with the merged candidates
+   (as JSON) and the same `diffPath` (not the diff text).
    Keep only its `confirmed` list. Do not re-add rejected findings.
 
 ## 4. Output

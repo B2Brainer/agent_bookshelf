@@ -1,0 +1,66 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/models/stats.ts",
+      "line": 46,
+      "severity": "high",
+      "issue": "getReviewsSorted interpolates caller-supplied `sort` directly into SQL ORDER BY with no whitelist, unlike getBooksPage which validates against BOOK_SORT_COLUMNS.",
+      "evidence": "`ORDER BY ${sort}` with sort taken unsanitized from `req.query.sort` in api.ts; e.g. `?sort=(SELECT password FROM users)` reaches the SQL text literally, enabling injection."
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating validation uses `&&` instead of `||`, so the out-of-range check can never be true, allowing any integer rating to bypass validation.",
+      "evidence": "`if (!Number.isInteger(rating) || (rating < 1 && rating > 5))` — no integer is simultaneously <1 and >5, so ratings like -999 or 100 pass and are persisted."
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 48,
+      "severity": "high",
+      "issue": "User-controlled display_name interpolated into a raw HTML response without escaping — stored XSS.",
+      "evidence": "`res.send(`<div class=\"top-review\"><strong>${top.display_name}</strong> rated it ${top.rating}/5</div>`)` uses res.send with a template literal, not an auto-escaping view, and display_name is user-settable."
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 34,
+      "severity": "medium",
+      "issue": "getBooksPage computes offset as `page * pageSize` instead of `(page - 1) * pageSize`, skipping the first page's rows.",
+      "evidence": "Doc comment states page starts at 1; with page=1 the OFFSET is pageSize, so the true first page of results is never returned."
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 215,
+      "severity": "low",
+      "issue": "reviewId/bookId from parseInt are not checked for NaN before being passed to model calls.",
+      "evidence": "`parseInt(req.params.id as string, 10)` with a non-numeric `:id` yields NaN, silently falling through to a 404 instead of a clear 400 for invalid input."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.4804124,
+  "duration_ms": 292431,
+  "num_turns": 11,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 40,
+      "outputTokens": 13494,
+      "cacheReadInputTokens": 638332,
+      "cacheCreationInputTokens": 67552,
+      "webSearchRequests": 0,
+      "costUSD": 0.4804124,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 1334,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

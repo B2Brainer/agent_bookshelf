@@ -1,0 +1,9 @@
+{
+  "planted-a-run1#4": {"verdict": "FP", "reason": "NaN id reaches the model, which returns undefined -> existing 404 path; no wrong outcome"},
+  "planted-a-run2#2": {"verdict": "TP:B3", "reason": "manual: same defect as B3 (impossible && range check); cited line 210 is inside the same PUT /reviews/:id/rating handler, 5 lines past the auto-match window"},
+  "clean-b-run1#0": {"verdict": "FP", "reason": "returns 200 [] for an unknown book, identical to the pre-existing /api/reviews/book/:bookId contract; no spec requires 404"},
+  "clean-b-run2#0": {"verdict": "FP", "reason": "limit=0 falls back to the default 10: lenient defaulting with valid output, not a defect (counted conservatively)"},
+  "clean-b-run2#1": {"verdict": "FP", "reason": "page=0 treated as page 1: lenient defaulting with valid output, not a defect (counted conservatively)"},
+  "clean-b-run3#0": {"verdict": "FP", "reason": "same as clean-b-run1#0"},
+  "clean-b-run3#1": {"verdict": "FP", "reason": "same as clean-b-run2#0"}
+}

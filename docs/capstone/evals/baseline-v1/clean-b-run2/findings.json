@@ -1,0 +1,45 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 17,
+      "severity": "low",
+      "issue": "`?limit=0` or `?minReviews=0` is silently replaced by the default (10 / 1) instead of being validated or rejected, because `|| default` treats 0 as falsy.",
+      "evidence": "const limit = Math.min(Math.max(parseInt(req.query.limit as string, 10) || 10, 1), 50);\nconst minReviews = Math.max(parseInt(req.query.minReviews as string, 10) || 1, 1);"
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 23,
+      "severity": "low",
+      "issue": "`?page=0` is coerced to 1 via `|| 1` before the `page < 1` check runs, so the validation can never catch an explicit page=0 and silently serves page 1 instead of 400.",
+      "evidence": "const page = parseInt(req.query.page as string, 10) || 1;\n...\nif (page < 1 || pageSize < 1 || pageSize > 100) { return res.status(400).json(...); }"
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.6093818999999999,
+  "duration_ms": 6950,
+  "num_turns": 1,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 58,
+      "outputTokens": 16781,
+      "cacheReadInputTokens": 1050947,
+      "cacheCreationInputTokens": 71812,
+      "webSearchRequests": 0,
+      "costUSD": 0.6093818999999999,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 4362,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

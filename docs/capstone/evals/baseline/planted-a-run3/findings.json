@@ -1,0 +1,59 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating validation condition is logically always false, so out-of-range ratings are never rejected.",
+      "evidence": "if (!Number.isInteger(rating) || (rating < 1 && rating > 5)) — rating=99 passes (99<1 is false, so the && is false; isInteger is true), so no 400 is returned and an invalid rating is persisted. Should be `rating < 1 || rating > 5`."
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 46,
+      "severity": "high",
+      "issue": "getReviewsSorted interpolates the raw `sort` query parameter directly into ORDER BY with no allowlist, enabling SQL injection.",
+      "evidence": "`ORDER BY ${sort}` with sort = (req.query.sort as string) || 'r.created_at DESC' in src/routes/api.ts — unlike getBooksPage's BOOK_SORT_COLUMNS allowlist, arbitrary SQL fragments can be injected via GET /books/:id/reviews?sort=..."
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 34,
+      "severity": "high",
+      "issue": "Pagination offset uses page*pageSize instead of (page-1)*pageSize, so page=1 skips the first pageSize rows.",
+      "evidence": "[pageSize, page * pageSize] — with page=1, pageSize=10, OFFSET is 10, so the first 10 books never appear on 'page 1' despite the comment stating 'page starts at 1'."
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 50,
+      "severity": "medium",
+      "issue": "User-controlled display_name is interpolated into raw HTML without escaping, enabling stored XSS.",
+      "evidence": "`<strong>${top.display_name}</strong> rated it ${top.rating}/5` sent via res.send() with no escaping; display_name is user-supplied at account creation and rendered unescaped, unlike EJS views which auto-escape by default."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.3758645,
+  "duration_ms": 289217,
+  "num_turns": 14,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 36,
+      "outputTokens": 11367,
+      "cacheReadInputTokens": 620845,
+      "cacheCreationInputTokens": 43572,
+      "webSearchRequests": 0,
+      "costUSD": 0.3758645,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 567,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

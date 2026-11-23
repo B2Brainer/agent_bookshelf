@@ -1,0 +1,126 @@
+
+ RUN  v2.1.9 /private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-05B9Dr/repo
+
+ × tests/oracle/oracle.test.ts > oracle > B1: page 1 starts at the first book
+   → expected 41 to be 23 // Object.is equality
+stderr | tests/oracle/oracle.test.ts > oracle > B2: sort parameter cannot inject SQL
+Error: no such column: nonexistent_column
+    at e.handleError (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/sql.js/dist/sql-wasm.js:90:226)
+    at e.tb (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/sql.js/dist/sql-wasm.js:88:472)
+    at Module.all (/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-05B9Dr/repo/src/db/index.ts:85:24)
+    at Module.getReviewsSorted (/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-05B9Dr/repo/src/models/stats.ts:40:10)
+    at /private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-05B9Dr/repo/src/routes/api.ts:37:18
+    at Layer.handle [as handle_request] (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/index.js:284:15
+
+ × tests/oracle/oracle.test.ts > oracle > B2: sort parameter cannot inject SQL
+   → expected 500 to be 200 // Object.is equality
+stderr | tests/oracle/oracle.test.ts > oracle > B3: out-of-range rating is rejected with 400
+Error: CHECK constraint failed: rating >= 1 AND rating <= 5
+    at e.handleError (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/sql.js/dist/sql-wasm.js:90:226)
+    at c.step (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/sql.js/dist/sql-wasm.js:80:405)
+    at e.run (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/sql.js/dist/sql-wasm.js:87:223)
+    at Module.run (/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-05B9Dr/repo/src/db/index.ts:96:11)
+    at Module.updateReview (/private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-05B9Dr/repo/src/models/review.ts:85:3)
+    at /private/var/folders/gx/j4c6wn9x7m5d_d1tmbh_lby80000gn/T/ws-05B9Dr/repo/src/routes/api.ts:205:25
+    at Layer.handle [as handle_request] (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/brainer/Documents/repositories/agent_bookshelf/node_modules/express/lib/router/layer.js:95:5)
+
+ × tests/oracle/oracle.test.ts > oracle > B3: out-of-range rating is rejected with 400
+   → expected 500 to be 400 // Object.is equality
+ × tests/oracle/oracle.test.ts > oracle > B4: reviewer display names are HTML-escaped
+   → expected '\n    <div class="top-review">\n     …' not to contain '<img src=x'
+ ✓ tests/oracle/oracle.test.ts > oracle > control: top, page validation, histogram and whitelisted sorts behave
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/oracle/oracle.test.ts > oracle > B1: page 1 starts at the first book
+AssertionError: expected 41 to be 23 // Object.is equality
+
+- Expected
++ Received
+
+- 23
++ 41
+
+ ❯ tests/oracle/oracle.test.ts:21:44
+     19|   it('B1: page 1 starts at the first book', () => {
+     20|     const first = Book.getAllBooks()[0];
+     21|     expect(Stats.getBooksPage(1, 5)[0].id).toBe(first.id);
+       |                                            ^
+     22|   });
+     23|   it('B2: sort parameter cannot inject SQL', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/oracle/oracle.test.ts > oracle > B2: sort parameter cannot inject SQL
+AssertionError: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ tests/oracle/oracle.test.ts:26:25
+     24|     // Raw input reaching ORDER BY makes an unknown column a SQL error…
+     25|     const res2 = await request(app).get('/api/books/1/reviews').query(…
+     26|     expect(res2.status).toBe(200);
+       |                         ^
+     27|   });
+     28|   it('B3: out-of-range rating is rejected with 400', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/oracle/oracle.test.ts > oracle > B3: out-of-range rating is rejected with 400
+AssertionError: expected 500 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 500
+
+ ❯ tests/oracle/oracle.test.ts:31:24
+     29|     const id = Review.getReviewsByBookId(1)[0].id;
+     30|     const res = await request(app).put(`/api/reviews/${id}/rating`).se…
+     31|     expect(res.status).toBe(400);
+       |                        ^
+     32|   });
+     33|   it('B4: reviewer display names are HTML-escaped', async () => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/oracle/oracle.test.ts > oracle > B4: reviewer display names are HTML-escaped
+AssertionError: expected '\n    <div class="top-review">\n     …' not to contain '<img src=x'
+
+- Expected
++ Received
+
+- <img src=x
++
++     <div class="top-review">
++       <strong><img src=x onerror=alert(1)></strong> rated it 5/5
++     </div>
++   
+
+ ❯ tests/oracle/oracle.test.ts:38:26
+     36|     const res = await request(app).get('/books/7/top-review');
+     37|     if (res.status === 404) return; // route absent in the clean contr…
+     38|     expect(res.text).not.toContain('<img src=x');
+       |                          ^
+     39|   });
+     40|   it('control: top, page validation, histogram and whitelisted sorts b…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  11:19:59
+   Duration  936ms (transform 94ms, setup 0ms, collect 217ms, tests 170ms, environment 0ms, prepare 153ms)
+

@@ -1,0 +1,59 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 199,
+      "severity": "high",
+      "issue": "Number() coercion in PUT /reviews/:id/rating accepts non-numeric types that coerce into integers 1-5 (e.g. boolean true, single-element arrays), passing the Number.isInteger/range check and writing a corrupted rating value instead of rejecting the malformed request.",
+      "evidence": "const rating = Number(req.body.rating); if (!Number.isInteger(rating) || (rating < 1 || rating > 5)) {...} — Number(true) === 1 and Number([4]) === 4, both pass validation and get persisted via Review.updateReview(reviewId, { rating })."
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 22,
+      "severity": "medium",
+      "issue": "page=0 (and pageSize=0) in GET /books/page is silently coerced to the default (1 / 10) via `|| 1` / `|| 10` before the `page < 1 || pageSize < 1` check runs, so the documented 400 'page must be >= 1' validation never triggers for an explicit 0 value; the endpoint instead returns 200 with default-page results.",
+      "evidence": "const page = parseInt(req.query.page as string, 10) || 1; const pageSize = parseInt(req.query.pageSize as string, 10) || 10; if (page < 1 || pageSize < 1 || pageSize > 100) { return res.status(400)... } — parseInt('0',10) is 0, which is falsy, so `0 || 1` becomes 1 before the bounds check runs."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.6551595000000001,
+  "duration_ms": 267018,
+  "num_turns": 12,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 28,
+      "outputTokens": 8927,
+      "cacheReadInputTokens": 625143,
+      "cacheCreationInputTokens": 40779,
+      "webSearchRequests": 0,
+      "costUSD": 0.36398260000000004,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 621,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 84,
+      "outputTokens": 38361,
+      "cacheReadInputTokens": 156754,
+      "cacheCreationInputTokens": 66890,
+      "webSearchRequests": 0,
+      "costUSD": 0.29117689999999996,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 35391,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

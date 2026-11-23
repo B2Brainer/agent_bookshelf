@@ -1,0 +1,5 @@
+{
+  "clean-b-run1#0": {"verdict": "FP", "reason": "Number(true)/'3' coerce to valid integers 1-5 and are stored as valid ratings: lenient coercion with valid output, not a defect (counted conservatively)"},
+  "clean-b-run1#1": {"verdict": "FP", "reason": "page/pageSize 0 fall back to defaults: lenient defaulting with valid output"},
+  "clean-b-run3#0": {"verdict": "FP", "reason": "returns 200 [] for an unknown book, identical to the pre-existing /api/reviews/book/:bookId contract"}
+}

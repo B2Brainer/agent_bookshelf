@@ -22,4 +22,4 @@ Method: for every candidate, open the file, find the exact line in the current v
 
 Output: ONLY a JSON object, no prose before or after:
 {"findings":[{"file":"src/x.ts","line":42,"severity":"high|medium|low","issue":"one sentence: what is wrong","evidence":"the offending code quoted from that line + the concrete input and wrong outcome"}]}
-Severity: high = wrong result, crash, or data loss on normal input; medium = wrong on a reachable edge case; low = minor robustness gap. Return {"findings":[]} when there is nothing real.
+Severity: high = wrong result, crash, or data loss on normal input; medium = wrong on a reachable edge case; low = real but minor wrong outcome (not a robustness wish). Return {"findings":[]} when there is nothing real.

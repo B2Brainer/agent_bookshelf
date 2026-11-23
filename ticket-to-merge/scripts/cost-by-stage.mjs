@@ -105,4 +105,13 @@ for (const [m, mu] of Object.entries(models)) {
   const k = Object.entries(tokByModel).filter(([x]) => canon(x) === m).reduce((a, [, v]) => ({ in: a.in + v.in, out: a.out + v.out, cr: a.cr + v.cr, cw: a.cw + v.cw }), { in: 0, out: 0, cr: 0, cw: 0 });
   console.log(`- ${m}: costUSD $${mu.costUSD.toFixed(4)} | tokens from transcripts in/out/cacheRead/cacheWrite = ${k.in}/${k.out}/${k.cr}/${k.cw} vs modelUsage ${mu.inputTokens}/${mu.outputTokens}/${mu.cacheReadInputTokens}/${mu.cacheCreationInputTokens}`);
 }
+const byAgent = {};
+for (const t of tagged) {
+  const model = t.m.message.model; const u = t.m.message.usage;
+  const cost = models[canon(model)] ? models[canon(model)].costUSD * weight(u) / wByModel[model] : 0;
+  const a = (byAgent[t.who] ||= { cost: 0, out: 0, msgs: 0, model });
+  a.cost += cost; a.out += u.output_tokens || 0; a.msgs++;
+}
+console.log('\nPer agent: | agent | model | cost | output tokens | messages |');
+for (const [k, a] of Object.entries(byAgent).sort((x, y) => y[1].cost - x[1].cost)) console.log(`| ${k} | ${a.model} | $${a.cost.toFixed(4)} | ${a.out} | ${a.msgs} |`);
 console.log(`\nSubagents: ${agentsSeen.map((a) => `${a.agent}→${a.stage}`).join(', ') || 'none'}`);

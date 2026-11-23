@@ -1,0 +1,59 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating validation condition uses && instead of ||, so the range check is always false and never rejects out-of-range ratings.",
+      "evidence": "if (!Number.isInteger(rating) || (rating < 1 && rating > 5)) { — no integer is simultaneously <1 and >5, so a rating of 0, -5, or 999 bypasses the 400 response and is persisted via Review.updateReview."
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 34,
+      "severity": "high",
+      "issue": "Pagination offset computed as page*pageSize instead of (page-1)*pageSize, skipping a page of results.",
+      "evidence": "[pageSize, page * pageSize] with the doc comment 'page starts at 1'; page=1, pageSize=10 yields OFFSET 10, so the first 10 rows are never returned."
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 46,
+      "severity": "high",
+      "issue": "getReviewsSorted interpolates the caller-supplied sort string directly into the SQL ORDER BY clause with no whitelist/validation, allowing SQL injection.",
+      "evidence": "ORDER BY ${sort}, fed from src/routes/api.ts:36 const sort = (req.query.sort as string) || 'r.created_at DESC'; unlike getBooksPage which whitelists via BOOK_SORT_COLUMNS."
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 50,
+      "severity": "medium",
+      "issue": "User-controlled display_name interpolated into raw HTML response without escaping, enabling stored XSS.",
+      "evidence": "<strong>${top.display_name}</strong> rated it ${top.rating}/5 in the /books/:id/top-review endpoint; rendered via res.send() with no escaping."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.292129,
+  "duration_ms": 55109,
+  "num_turns": 5,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 28,
+      "outputTokens": 6960,
+      "cacheReadInputTokens": 277060,
+      "cacheCreationInputTokens": 53133,
+      "webSearchRequests": 0,
+      "costUSD": 0.292129,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 439,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

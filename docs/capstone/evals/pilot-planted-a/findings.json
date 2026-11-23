@@ -1,0 +1,59 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 36,
+      "severity": "high",
+      "issue": "Unsanitized `sort` query parameter is interpolated directly into a SQL ORDER BY clause, enabling SQL injection",
+      "evidence": "`const sort = (req.query.sort as string) || 'r.created_at DESC';` passed to `Stats.getReviewsSorted(bookId, sort)`, which builds `ORDER BY ${sort}` in stats.ts:46 — only the `?` placeholder for bookId is parameterized, the ORDER BY text is raw. No whitelist, unlike the sibling `getBooksPage` which validates against `BOOK_SORT_COLUMNS`."
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating validation condition uses `&&` instead of `||`, making the bounds check always false and effectively a no-op",
+      "evidence": "`if (!Number.isInteger(rating) || (rating < 1 && rating > 5))` — no number is both <1 and >5, so any integer (0, -100, 9999) passes and is persisted via `Review.updateReview`. Contrast with the correct `rating < 1 || rating > 5` already used elsewhere in the same file (line ~173)."
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 50,
+      "severity": "medium",
+      "issue": "Unescaped user-controlled `display_name` interpolated into an HTML response, allowing stored XSS",
+      "evidence": "`res.send(`<div class=\"top-review\"><strong>${top.display_name}</strong> rated it ${top.rating}/5</div>`)` — `display_name` is user-settable with no sanitization on write and no escaping on render."
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 35,
+      "severity": "low",
+      "issue": "`bookId` from `req.params.id` isn't validated as a number before use in `/books/:id/reviews`, unlike sibling routes",
+      "evidence": "No NaN check and no `Book.getBookById` existence check; a non-numeric id (e.g. `/books/abc/reviews`) silently returns an empty 200 array instead of 404/400, unlike `/books/:id` and `/books/:id/histogram`."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.6919018000000001,
+  "duration_ms": 9411,
+  "num_turns": 1,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 40,
+      "outputTokens": 14356,
+      "cacheReadInputTokens": 887184,
+      "cacheCreationInputTokens": 102826,
+      "webSearchRequests": 0,
+      "costUSD": 0.6919018000000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 1031,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

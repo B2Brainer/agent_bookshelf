@@ -1,0 +1,52 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating bounds check uses && instead of ||, so it can never reject an invalid value — any integer rating (e.g. 9999 or -50) passes validation and is persisted.",
+      "evidence": "if (!Number.isInteger(rating) || (rating < 1 && rating > 5)) { ... } — the clause (rating < 1 && rating > 5) is always false."
+    },
+    {
+      "file": "src/models/stats.ts",
+      "line": 46,
+      "severity": "high",
+      "issue": "SQL injection: the `sort` parameter from `GET /books/:id/reviews?sort=` is interpolated unsanitized into the ORDER BY clause, unlike the sibling getBooksPage which whitelists its sort column.",
+      "evidence": "ORDER BY ${sort} in getReviewsSorted, fed directly from `const sort = (req.query.sort as string) || 'r.created_at DESC';` in src/routes/api.ts."
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 48,
+      "severity": "medium",
+      "issue": "Stored XSS: display_name is rendered into an HTML response via raw template-string res.send() with no escaping, unlike sibling routes that use the res.render templating engine.",
+      "evidence": "res.send(`<div class=\"top-review\"><strong>${top.display_name}</strong> rated it ${top.rating}/5</div>`) — display_name is set unsanitized at user creation (api.ts)."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.4371881,
+  "duration_ms": 30455,
+  "num_turns": 2,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 28,
+      "outputTokens": 12515,
+      "cacheReadInputTokens": 593573,
+      "cacheCreationInputTokens": 55992,
+      "webSearchRequests": 0,
+      "costUSD": 0.4371881,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 484,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

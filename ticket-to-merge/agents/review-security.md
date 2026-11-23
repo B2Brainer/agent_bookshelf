@@ -19,4 +19,4 @@ Method: for every candidate, open the file at the exact current line and describ
 
 Output: ONLY a JSON object, no prose before or after:
 {"findings":[{"file":"src/x.ts","line":42,"severity":"high|medium|low","issue":"one sentence: what is wrong","evidence":"the offending code quoted from that line + the concrete request and impact"}]}
-Severity: high = exploitable injection, auth bypass or data exposure; medium = validation gap with a concrete bad outcome; low = minor. Return {"findings":[]} when there is nothing real.
+Severity: high = exploitable injection, auth bypass or data exposure; medium = validation gap with a concrete bad outcome; low = real but minor (not hardening advice). Return {"findings":[]} when there is nothing real.

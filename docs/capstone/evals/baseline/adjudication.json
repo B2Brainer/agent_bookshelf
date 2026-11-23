@@ -1,0 +1,5 @@
+{
+  "clean-b-run2#0": {"verdict": "FP", "reason": "returns 200 [] for an unknown book, identical to the pre-existing /api/reviews/book/:bookId contract; no spec requires 404"},
+  "clean-b-run3#0": {"verdict": "FP", "reason": "same as clean-b-run2#0"},
+  "clean-b-run3#1": {"verdict": "FP", "reason": "0/non-numeric page and pageSize fall back to defaults: lenient defaulting with valid output, not a defect (counted conservatively)"}
+}

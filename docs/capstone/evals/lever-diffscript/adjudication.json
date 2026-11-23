@@ -1,0 +1,7 @@
+{
+  "clean-b-run1#0": {"verdict": "FP", "reason": "200 [] for an unknown/non-numeric book, identical to the pre-existing /api/reviews/book/:bookId contract; NaN is bound as a parameter"},
+  "clean-b-run2#0": {"verdict": "FP", "reason": "minReviews=0 -> 1: the INNER JOIN already excludes books with no reviews, so results are identical; lenient default"},
+  "clean-b-run2#1": {"verdict": "FP", "reason": "page=0 -> page 1: lenient defaulting with valid output (counted conservatively)"},
+  "clean-b-run2#2": {"verdict": "FP", "reason": "pageSize=0 -> 10: lenient defaulting with valid output (counted conservatively)"},
+  "clean-b-run3#0": {"verdict": "FP", "reason": "NaN bookId is bound as a ? parameter and matches no rows -> 200 []; no injection, no crash"}
+}

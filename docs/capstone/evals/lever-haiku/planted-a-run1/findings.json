@@ -1,0 +1,73 @@
+{
+  "parse_ok": true,
+  "base": "0e6fb665f67f1c26bc2b1e4d80af2415ad0020d0",
+  "findings": [
+    {
+      "file": "src/models/stats.ts",
+      "line": 34,
+      "severity": "high",
+      "issue": "Pagination offset formula is off by one pageSize, skipping the first page",
+      "evidence": "getBooksPage computes OFFSET as `page * pageSize` instead of `(page - 1) * pageSize`, despite its own comment stating 'page starts at 1'. page=1 returns items 11-20 (pageSize=10), and the true first page is never reachable."
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 201,
+      "severity": "high",
+      "issue": "Rating validation condition is tautologically false, so no out-of-range rating is ever rejected",
+      "evidence": "`if (!Number.isInteger(rating) || (rating < 1 && rating > 5))` — no number can be both <1 AND >5, so only non-integers are rejected; ratings like 0, -5, or 999 pass and get persisted via Review.updateReview."
+    },
+    {
+      "file": "src/routes/api.ts",
+      "line": 36,
+      "severity": "high",
+      "issue": "SQL injection via unvalidated `sort` query param interpolated into a raw SQL ORDER BY clause",
+      "evidence": "`const sort = (req.query.sort as string) || 'r.created_at DESC';` flows unchecked into Stats.getReviewsSorted(bookId, sort), which builds `ORDER BY ${sort}` via template literal with no whitelist — unlike the sibling getBooksPage, which whitelists against BOOK_SORT_COLUMNS."
+    },
+    {
+      "file": "src/routes/books.ts",
+      "line": 50,
+      "severity": "high",
+      "issue": "Stored XSS via unescaped display_name in the top-review HTML fragment",
+      "evidence": "`res.send(`<div class=\"top-review\"><strong>${top.display_name}</strong> rated it ${top.rating}/5</div>`)` interpolates user-controlled display_name into raw HTML with no escaping, unlike the res.render-based views used elsewhere in the same file."
+    }
+  ],
+  "agents_dispatched": [
+    "ticket-to-merge:review-correctness",
+    "ticket-to-merge:review-security",
+    "ticket-to-merge:review-verifier"
+  ],
+  "total_cost_usd": 0.50833795,
+  "duration_ms": 42069,
+  "num_turns": 2,
+  "is_error": false,
+  "modelUsage": {
+    "claude-sonnet-5": {
+      "inputTokens": 34,
+      "outputTokens": 10179,
+      "cacheReadInputTokens": 842311,
+      "cacheCreationInputTokens": 47065,
+      "webSearchRequests": 0,
+      "costUSD": 0.44013169999999996,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 491,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 84,
+      "outputTokens": 6138,
+      "cacheReadInputTokens": 74635,
+      "cacheCreationInputTokens": 23975,
+      "webSearchRequests": 0,
+      "costUSD": 0.06820625,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 3636,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

@@ -53,7 +53,7 @@ grep -H "^model:" "$PL"/agents/review-*.md > "$OUT/models.txt"
 cd "$WS"
 claude -p "/ticket-to-merge:review-pr" \
   --plugin-dir "$PL" --model "$ORCH_MODEL" \
-  --allowedTools "Bash(git *)" Read Grep Glob Agent Skill \
+  --allowedTools "Bash(git *)" "Bash(node *)" Read Grep Glob Agent Skill \
   --output-format stream-json --verbose --max-budget-usd 5 \
   > "$OUT/transcript.jsonl" 2> "$OUT/stderr.log" || echo "claude exited $?" >> "$OUT/stderr.log"
 
