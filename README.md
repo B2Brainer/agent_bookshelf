@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Repository (fork) | **`<FORK_URL>`** ← fork of `github.com/abarriosBLA/agent_bookshelf` |
+| Repository (fork) | **`https://github.com/B2Brainer/agent_bookshelf.git`** ← fork of `github.com/abarriosBLA/agent_bookshelf` |
 | Branch | `capstone/ticket-to-merge` |
 | Ticket | BOOK-101 · Search books by title or author → [`SPEC.md`](SPEC.md) |
 | Project instructions | [`CLAUDE.md`](CLAUDE.md) (88 lines: conventions, test command, hard constraints) |
